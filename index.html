@@ -24,13 +24,16 @@
   --num: #79c0ff;
   --cm: #4a6070;
   --header-h: 60px;
-  /* REPL */
   --repl-bg: #0d1117;
   --repl-prompt: #7c6af7;
   --repl-code: #c9d1d9;
   --repl-out: #56d3a0;
   --repl-out-bg: #081811;
   --repl-dim: #556070;
+  /* explanation */
+  --exp-bg: #0f1923;
+  --exp-border: rgba(247,147,26,.18);
+  --exp-text: #c8d8e8;
 }
 * { margin:0; padding:0; box-sizing:border-box; }
 html { scroll-behavior:smooth; }
@@ -48,7 +51,7 @@ header {
 }
 .logo { font-family:'Syne Mono',monospace; font-size:1.05rem; color:var(--accent); letter-spacing:.05em; flex-shrink:0; }
 .logo span { color:var(--muted); }
-.search-wrap { flex:1; max-width:380px; position:relative; }
+.search-wrap { flex:1; max-width:340px; position:relative; }
 .search-wrap input {
   width:100%; background:var(--surface); border:1px solid var(--border); border-radius:6px;
   padding:.38rem 1rem .38rem 2.3rem; color:var(--text);
@@ -57,6 +60,18 @@ header {
 .search-wrap input:focus { border-color:var(--accent); }
 .search-wrap i { position:absolute; left:.7rem; top:50%; transform:translateY(-50%); color:var(--muted); font-size:.72rem; }
 .search-wrap input::placeholder { color:var(--muted); }
+
+/* global explain toggle in header */
+.global-toggle {
+  display:flex; align-items:center; gap:.5rem;
+  font-family:'IBM Plex Mono',monospace; font-size:.7rem; color:var(--muted);
+  cursor:pointer; border:1px solid var(--border); border-radius:6px; padding:.3rem .75rem;
+  transition:all .2s; white-space:nowrap; user-select:none;
+}
+.global-toggle:hover { border-color:var(--accent2); color:var(--accent2); }
+.global-toggle.all-open { border-color:var(--accent2); color:var(--accent2); background:rgba(247,147,26,.05); }
+.global-toggle i { font-size:.65rem; }
+
 .ver-badge { margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:.68rem; color:var(--muted); border:1px solid var(--border); padding:.18rem .55rem; border-radius:4px; }
 
 /* ─── LAYOUT ─── */
@@ -105,92 +120,90 @@ p code, td code, li code {
   padding:.08em .38em; border-radius:3px; white-space:nowrap;
 }
 
-/* ─── REPL BLOCK ─── */
-.repl {
-  background:var(--repl-bg);
+/* ─── EXPLANATION BLOCK ─── */
+.exp-wrap { margin:0; }
+
+/* The toggle button that sits between repl and explanation */
+.exp-toggle {
+  display:inline-flex; align-items:center; gap:.45rem;
+  margin:.55rem 0 0 0;
+  font-family:'IBM Plex Mono',monospace; font-size:.68rem;
+  color:var(--muted);
+  cursor:pointer;
   border:1px solid var(--border);
-  border-radius:10px;
-  overflow:hidden;
-  font-family:'IBM Plex Mono',monospace;
-  font-size:.8rem;
-  margin:1rem 0;
+  border-radius:5px;
+  padding:.22rem .65rem;
+  background:transparent;
+  transition:all .18s;
+  user-select:none;
 }
-.repl-header {
-  display:flex; align-items:center; gap:.5rem;
-  padding:.5rem 1rem; background:var(--surface); border-bottom:1px solid var(--border);
+.exp-toggle:hover { color:var(--accent2); border-color:var(--accent2); background:rgba(247,147,26,.04); }
+.exp-toggle.open { color:var(--accent2); border-color:var(--accent2); background:rgba(247,147,26,.05); }
+.exp-toggle .arrow { font-size:.6rem; transition:transform .2s; }
+.exp-toggle.open .arrow { transform:rotate(90deg); }
+
+/* The explanation panel itself */
+.exp-panel {
+  display:none;
+  background:var(--exp-bg);
+  border:1px solid var(--exp-border);
+  border-radius:8px;
+  padding:1rem 1.2rem;
+  margin:.4rem 0 .8rem 0;
+  font-size:.85rem;
+  line-height:1.85;
+  color:var(--exp-text);
+  animation:slideIn .18s ease;
 }
+.exp-panel.open { display:block; }
+
+@keyframes slideIn {
+  from { opacity:0; transform:translateY(-6px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* styled list inside explanation */
+.exp-panel ul { padding-left:1.2rem; margin:.4rem 0; }
+.exp-panel li { margin:.25rem 0; color:var(--exp-text); }
+.exp-panel li::marker { color:var(--accent2); }
+.exp-panel strong { color:#fff; font-weight:600; }
+.exp-panel .hl { color:var(--accent); font-family:'IBM Plex Mono',monospace; font-size:.82em; background:rgba(0,212,170,.08); padding:.05em .35em; border-radius:3px; }
+.exp-panel .hl2 { color:var(--accent2); font-family:'IBM Plex Mono',monospace; font-size:.82em; background:rgba(247,147,26,.08); padding:.05em .35em; border-radius:3px; }
+.exp-panel .note-line {
+  display:flex; gap:.55rem; align-items:flex-start;
+  background:rgba(124,106,247,.07); border-left:2px solid var(--accent3);
+  border-radius:0 5px 5px 0; padding:.45rem .75rem; margin:.6rem 0; font-size:.82rem;
+}
+.exp-panel .note-line i { color:var(--accent3); flex-shrink:0; margin-top:.2rem; font-size:.72rem; }
+
+/* ─── REPL ─── */
+.repl {
+  background:var(--repl-bg); border:1px solid var(--border); border-radius:10px;
+  overflow:hidden; font-family:'IBM Plex Mono',monospace; font-size:.8rem; margin:1rem 0 0 0;
+}
+.repl-header { display:flex; align-items:center; gap:.5rem; padding:.5rem 1rem; background:var(--surface); border-bottom:1px solid var(--border); }
 .dots { display:flex; gap:5px; }
 .dots span { width:9px; height:9px; border-radius:50%; }
 .dr { background:#ff5f57; } .dy { background:#ffbd2e; } .dg { background:#28c840; }
 .repl-lang { font-family:'IBM Plex Mono',monospace; font-size:.65rem; color:var(--muted); margin-left:auto; }
-
-/* Each statement+output row */
 .repl-body { padding:.7rem 0; }
-.stmt {
-  display:grid;
-  grid-template-columns:auto 1fr;
-  gap:0;
-  padding:0;
-}
-/* prompt + code line */
-.stmt-code {
-  display:contents;
-}
-.stmt-code .prompt {
-  color:var(--repl-prompt);
-  padding:.18rem 0 .18rem 1rem;
-  user-select:none;
-  font-size:.78rem;
-  white-space:nowrap;
-}
-.stmt-code .line {
-  padding:.18rem .5rem .18rem .4rem;
-  color:var(--repl-code);
-  line-height:1.6;
-}
-/* continuation lines (multi-line code) */
-.stmt-code .cont {
-  color:var(--muted);
-  padding:.18rem 0 .18rem 1rem;
-  user-select:none;
-  font-size:.78rem;
-}
-
-/* output area */
+.stmt { display:grid; grid-template-columns:auto 1fr; }
+.stmt-code { display:contents; }
+.stmt-code .prompt { color:var(--repl-prompt); padding:.18rem 0 .18rem 1rem; user-select:none; font-size:.78rem; white-space:nowrap; }
+.stmt-code .line { padding:.18rem .5rem .18rem .4rem; color:var(--repl-code); line-height:1.6; }
 .out {
-  grid-column: 1 / -1;
-  background:var(--repl-out-bg);
-  border-top:1px solid rgba(0,212,170,.08);
-  border-bottom:1px solid rgba(0,212,170,.08);
-  padding:.45rem 1rem .45rem 3.2rem;
-  color:var(--repl-out);
-  line-height:1.75;
-  white-space:pre;
-  font-size:.78rem;
+  grid-column:1/-1; background:var(--repl-out-bg);
+  border-top:1px solid rgba(0,212,170,.08); border-bottom:1px solid rgba(0,212,170,.08);
+  padding:.45rem 1rem .45rem 3.2rem; color:var(--repl-out); line-height:1.75; white-space:pre; font-size:.78rem;
 }
-.out.no-border { border:none; }
-
-/* gap between statements */
 .stmt-gap { height:.65rem; }
 
-/* syntax colours */
-.kw { color:var(--kw); }
-.fn { color:var(--fn); }
-.st { color:var(--str); }
-.nm { color:var(--num); }
-.cm { color:var(--cm); font-style:italic; }
-.at { color:var(--accent); }
-
-/* dim in output */
-.od { color:var(--repl-dim); }
-.on { color:#79d4ff; }
-.ol { color:#f7c26a; }
+/* syntax */
+.kw{color:var(--kw);} .fn{color:var(--fn);} .st{color:var(--str);}
+.nm{color:var(--num);} .cm{color:var(--cm);font-style:italic;} .at{color:var(--accent);}
 
 /* ─── INFO BOX ─── */
-.box {
-  border-radius:8px; padding:.85rem 1.05rem; margin:.9rem 0;
-  display:flex; gap:.75rem; align-items:flex-start; font-size:.84rem;
-}
+.box { border-radius:8px; padding:.85rem 1.05rem; margin:.9rem 0; display:flex; gap:.75rem; align-items:flex-start; font-size:.84rem; }
 .box i { flex-shrink:0; margin-top:.15rem; }
 .box.tip { background:rgba(0,212,170,.06); border-left:3px solid var(--accent); }
 .box.tip i { color:var(--accent); }
@@ -216,23 +229,16 @@ td:first-child { font-family:'IBM Plex Mono',monospace; color:var(--fn); font-si
 .card-title { font-family:'IBM Plex Mono',monospace; font-size:.77rem; color:var(--accent); margin-bottom:.35rem; font-weight:600; }
 .card p { font-size:.78rem; color:var(--muted); margin:0; line-height:1.55; }
 
-/* ─── TWO COL ─── */
 .two { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
 
-/* ─── FOOTER ─── */
 footer { border-top:1px solid var(--border); padding:1.4rem 3rem; color:var(--muted); font-family:'IBM Plex Mono',monospace; font-size:.68rem; display:flex; justify-content:space-between; }
-
-/* ─── BACK TOP ─── */
 #top { position:fixed; bottom:1.4rem; right:1.4rem; width:34px; height:34px; background:var(--surface); border:1px solid var(--border); border-radius:7px; color:var(--muted); display:flex; align-items:center; justify-content:center; text-decoration:none; font-size:.75rem; transition:all .2s; z-index:999; opacity:0; pointer-events:none; }
 #top.show { opacity:1; pointer-events:all; }
 #top:hover { color:var(--accent); border-color:var(--accent); }
 
 @media(max-width:900px){
-  .container { grid-template-columns:1fr; }
-  aside { display:none; }
-  main { padding:1.4rem; }
-  .two { grid-template-columns:1fr; }
-  .hero h1 { font-size:2rem; }
+  .container{grid-template-columns:1fr;} aside{display:none;}
+  main{padding:1.4rem;} .two{grid-template-columns:1fr;} .hero h1{font-size:2rem;}
 }
 </style>
 </head>
@@ -244,6 +250,10 @@ footer { border-top:1px solid var(--border); padding:1.4rem 3rem; color:var(--mu
     <i class="fa fa-search"></i>
     <input id="q" type="text" placeholder="Search functions, topics…" autocomplete="off">
   </div>
+  <div class="global-toggle" id="globalToggle" onclick="toggleAll()">
+    <i class="fa fa-book-open"></i>
+    <span id="globalLabel">Show all explanations</span>
+  </div>
   <div class="ver-badge">NumPy 1.26 / 2.x</div>
 </header>
 
@@ -252,24 +262,21 @@ footer { border-top:1px solid var(--border); padding:1.4rem 3rem; color:var(--mu
   <div class="nav-label">Start</div>
   <a href="#intro" class="active"><i class="fa fa-home"></i>Introduction</a>
   <a href="#install"><i class="fa fa-download"></i>Installation</a>
-  <a href="#import"><i class="fa fa-plug"></i>Import & Setup</a>
-
+  <a href="#import"><i class="fa fa-plug"></i>Import &amp; Setup</a>
   <div class="nav-label">Arrays</div>
   <a href="#creation"><i class="fa fa-cube"></i>Array Creation</a>
   <a href="#dtypes"><i class="fa fa-tag"></i>Data Types</a>
   <a href="#attributes"><i class="fa fa-info-circle"></i>Attributes</a>
-  <a href="#indexing"><i class="fa fa-crosshairs"></i>Indexing & Slicing</a>
+  <a href="#indexing"><i class="fa fa-crosshairs"></i>Indexing &amp; Slicing</a>
   <a href="#reshaping"><i class="fa fa-expand-arrows-alt"></i>Reshaping</a>
   <a href="#copying"><i class="fa fa-copy"></i>Views vs Copies</a>
-
   <div class="nav-label">Operations</div>
-  <a href="#math"><i class="fa fa-calculator"></i>Math & ufuncs</a>
+  <a href="#math"><i class="fa fa-calculator"></i>Math &amp; ufuncs</a>
   <a href="#aggregation"><i class="fa fa-chart-bar"></i>Aggregation</a>
   <a href="#broadcasting"><i class="fa fa-broadcast-tower"></i>Broadcasting</a>
-  <a href="#comparison"><i class="fa fa-not-equal"></i>Comparison & Logic</a>
+  <a href="#comparison"><i class="fa fa-not-equal"></i>Comparison &amp; Logic</a>
   <a href="#sorting"><i class="fa fa-sort"></i>Sorting</a>
   <a href="#sets"><i class="fa fa-layer-group"></i>Set Operations</a>
-
   <div class="nav-label">Advanced</div>
   <a href="#linalg"><i class="fa fa-superscript"></i>Linear Algebra</a>
   <a href="#random"><i class="fa fa-dice"></i>Random Module</a>
@@ -280,11 +287,11 @@ footer { border-top:1px solid var(--border); padding:1.4rem 3rem; color:var(--mu
 
 <main>
 
-<!-- ══════════════ HERO ══════════════ -->
+<!-- ══ HERO ══ -->
 <div class="hero" id="intro">
   <div class="eyebrow"><i class="fa fa-atom"></i> &nbsp;Complete Reference Notes</div>
   <h1>NumPy</h1>
-  <p>Numerical Python — the foundation of scientific computing. Provides fast, memory-efficient n-dimensional arrays and a huge library of mathematical, statistical, and linear-algebra functions.</p>
+  <p>Numerical Python — the foundation of scientific computing. Fast, memory-efficient n-dimensional arrays and a vast library of mathematical, statistical, and linear-algebra functions.</p>
   <div class="badges">
     <span class="badge g"><i class="fa fa-check"></i> &nbsp;N-dim arrays</span>
     <span class="badge o"><i class="fa fa-bolt"></i> &nbsp;C-speed ops</span>
@@ -293,60 +300,67 @@ footer { border-top:1px solid var(--border); padding:1.4rem 3rem; color:var(--mu
   </div>
 </div>
 
-<!-- ══════════════ INSTALL ══════════════ -->
+<!-- ══ INSTALL ══ -->
 <section id="install">
   <div class="sec-head"><div class="sec-icon ig"><i class="fa fa-download"></i></div><h2>Installation</h2></div>
   <div class="two">
-    <div class="repl">
-      <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">terminal — pip</span></div>
-      <div class="repl-body">
-        <div class="stmt">
-          <div class="stmt-code"><span class="prompt">$&nbsp;</span><span class="line">pip install numpy</span></div>
-          <div class="out">Successfully installed numpy-1.26.4</div>
-        </div>
-        <div class="stmt-gap"></div>
-        <div class="stmt">
-          <div class="stmt-code"><span class="prompt">$&nbsp;</span><span class="line">pip install --upgrade numpy</span></div>
-          <div class="out">Successfully installed numpy-1.26.4</div>
+    <div>
+      <div class="repl">
+        <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">pip</span></div>
+        <div class="repl-body">
+          <div class="stmt"><div class="stmt-code"><span class="prompt">$&nbsp;</span><span class="line">pip install numpy</span></div><div class="out">Successfully installed numpy-1.26.4</div></div>
+          <div class="stmt-gap"></div>
+          <div class="stmt"><div class="stmt-code"><span class="prompt">$&nbsp;</span><span class="line">pip install --upgrade numpy</span></div><div class="out">Successfully installed numpy-1.26.4</div></div>
         </div>
       </div>
+      <button class="exp-toggle" onclick="toggleExp(this)"><i class="fa fa-chevron-right arrow"></i> Explain</button>
+      <div class="exp-panel">
+        <strong>pip</strong> is Python's built-in package manager. <span class="hl">pip install numpy</span> downloads NumPy from PyPI and installs it into your current Python environment. Use <span class="hl">--upgrade</span> when you already have NumPy but want the latest version.
+        <div class="note-line"><i class="fa fa-circle-info"></i>If you use a virtual environment (<span class="hl">venv</span> or <span class="hl">conda env</span>), always activate it first so NumPy installs into the right place.</div>
+      </div>
     </div>
-    <div class="repl">
-      <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">terminal — conda</span></div>
-      <div class="repl-body">
-        <div class="stmt">
-          <div class="stmt-code"><span class="prompt">$&nbsp;</span><span class="line">conda install numpy</span></div>
-          <div class="out">Downloading and Extracting Packages
-numpy 1.26.4 | 7.1 MB
-done</div>
+    <div>
+      <div class="repl">
+        <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">conda</span></div>
+        <div class="repl-body">
+          <div class="stmt"><div class="stmt-code"><span class="prompt">$&nbsp;</span><span class="line">conda install numpy</span></div><div class="out">Downloading numpy-1.26.4 ✓</div></div>
         </div>
+      </div>
+      <button class="exp-toggle" onclick="toggleExp(this)"><i class="fa fa-chevron-right arrow"></i> Explain</button>
+      <div class="exp-panel">
+        <strong>Conda</strong> is Anaconda's package manager. It installs pre-compiled binaries linked against optimised BLAS/LAPACK libraries (e.g. MKL), which can make NumPy operations significantly faster than the pip version on Intel CPUs.
       </div>
     </div>
   </div>
 </section>
 
-<!-- ══════════════ IMPORT ══════════════ -->
+<!-- ══ IMPORT ══ -->
 <section id="import">
   <div class="sec-head"><div class="sec-icon io"><i class="fa fa-plug"></i></div><h2>Import &amp; Setup</h2></div>
   <div class="repl">
     <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">python</span></div>
     <div class="repl-body">
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line"><span class="kw">import</span> numpy <span class="kw">as</span> np&nbsp;&nbsp;<span class="cm"># always use the alias np</span></span></div>
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.__version__</span></div>
-        <div class="out">'1.26.4'</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line"><span class="kw">import</span> numpy <span class="kw">as</span> np</span></div></div>
       <div class="stmt-gap"></div>
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line"><span class="kw">import</span> numpy.linalg <span class="kw">as</span> la&nbsp;&nbsp;<span class="cm"># linear algebra submodule</span></span></div>
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line"><span class="kw">import</span> numpy.random <span class="kw">as</span> nr&nbsp;&nbsp;<span class="cm"># random submodule</span></span></div>
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line"><span class="kw">from</span> numpy <span class="kw">import</span> array, zeros&nbsp;&nbsp;<span class="cm"># named imports</span></span></div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.__version__</span></div><div class="out">'1.26.4'</div></div>
+      <div class="stmt-gap"></div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line"><span class="kw">import</span> numpy.linalg <span class="kw">as</span> la&nbsp;&nbsp;<span class="cm"># linear algebra</span></span></div></div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line"><span class="kw">import</span> numpy.random <span class="kw">as</span> nr&nbsp;&nbsp;<span class="cm"># random numbers</span></span></div></div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line"><span class="kw">from</span> numpy <span class="kw">import</span> array, zeros&nbsp;&nbsp;<span class="cm"># named imports</span></span></div></div>
     </div>
+  </div>
+  <button class="exp-toggle" onclick="toggleExp(this)"><i class="fa fa-chevron-right arrow"></i> Explain</button>
+  <div class="exp-panel">
+    <strong>Why <span class="hl">as np</span>?</strong> The alias <span class="hl">np</span> is a universal convention across the entire Python data-science ecosystem. Every tutorial, book, and library assumes you use it — never rename it.
+    <ul>
+      <li><span class="hl">numpy.linalg</span> — dedicated submodule for linear algebra (matrix inverse, eigenvalues, SVD…)</li>
+      <li><span class="hl">numpy.random</span> — random number generation (legacy API); prefer <span class="hl">np.random.default_rng()</span></li>
+      <li><span class="hl">from numpy import array</span> — lets you write <span class="hl">array([1,2,3])</span> directly without the <span class="hl">np.</span> prefix, useful in scripts where you use it constantly</li>
+    </ul>
   </div>
 </section>
 
-<!-- ══════════════ ARRAY CREATION ══════════════ -->
+<!-- ══ ARRAY CREATION ══ -->
 <section id="creation">
   <div class="sec-head"><div class="sec-icon ig"><i class="fa fa-cube"></i></div><h2>Array Creation</h2></div>
 
@@ -354,122 +368,77 @@ done</div>
   <div class="repl">
     <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">python</span></div>
     <div class="repl-body">
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">array</span>([<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>, <span class="nm">4</span>])&nbsp;&nbsp;<span class="cm"># 1-D from list</span></span></div>
-        <div class="out">array([1, 2, 3, 4])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">array</span>([<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>, <span class="nm">4</span>])</span></div><div class="out">array([1, 2, 3, 4])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">array</span>([[<span class="nm">1</span>,<span class="nm">2</span>,<span class="nm">3</span>],[<span class="nm">4</span>,<span class="nm">5</span>,<span class="nm">6</span>]])&nbsp;&nbsp;<span class="cm"># 2-D (matrix)</span></span></div>
-        <div class="out">array([[1, 2, 3],
-       [4, 5, 6]])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">array</span>([[<span class="nm">1</span>,<span class="nm">2</span>,<span class="nm">3</span>],[<span class="nm">4</span>,<span class="nm">5</span>,<span class="nm">6</span>]])</span></div><div class="out">array([[1, 2, 3],
+       [4, 5, 6]])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">array</span>([<span class="nm">1.0</span>, <span class="nm">2.0</span>], dtype=np.float32)&nbsp;&nbsp;<span class="cm"># specify dtype</span></span></div>
-        <div class="out">array([1., 2.], dtype=float32)</div>
-      </div>
-      <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">array</span>([[[<span class="nm">1</span>,<span class="nm">2</span>],[<span class="nm">3</span>,<span class="nm">4</span>]],[[<span class="nm">5</span>,<span class="nm">6</span>],[<span class="nm">7</span>,<span class="nm">8</span>]]])&nbsp;&nbsp;<span class="cm"># 3-D</span></span></div>
-        <div class="out">array([[[1, 2],
-        [3, 4]],
-       [[5, 6],
-        [7, 8]]])</div>
-      </div>
-
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">array</span>([<span class="nm">1.0</span>, <span class="nm">2.0</span>], dtype=np.float32)</span></div><div class="out">array([1., 2.], dtype=float32)</div></div>
     </div>
+  </div>
+  <button class="exp-toggle" onclick="toggleExp(this)"><i class="fa fa-chevron-right arrow"></i> Explain</button>
+  <div class="exp-panel">
+    <strong><span class="hl">np.array()</span></strong> converts any Python sequence (list, tuple, nested list) into an ndarray.
+    <ul>
+      <li>A <strong>1-D list</strong> → a vector. A <strong>list of lists</strong> → a matrix (2-D array). NumPy infers the shape automatically from the nesting depth.</li>
+      <li><strong>dtype</strong> is inferred by default — integers stay <span class="hl">int64</span>, floats become <span class="hl">float64</span>. You can override it with the <span class="hl">dtype=</span> argument to save memory (e.g. <span class="hl">float32</span> uses half the space).</li>
+      <li>All elements must be the same type. If you mix ints and floats, NumPy upcasts everything to float automatically.</li>
+    </ul>
+    <div class="note-line"><i class="fa fa-circle-info"></i>Unlike Python lists, NumPy arrays are <strong>fixed-size</strong> and <strong>homogeneous</strong> (one type only). This is what makes them fast.</div>
   </div>
 
   <h3>Built-in Constructors</h3>
   <div class="repl">
     <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">python — each line, then its result</span></div>
     <div class="repl-body">
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">arange</span>(<span class="nm">0</span>, <span class="nm">10</span>, <span class="nm">2</span>)&nbsp;&nbsp;<span class="cm"># start, stop (excl), step</span></span></div>
-        <div class="out">array([0, 2, 4, 6, 8])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">arange</span>(<span class="nm">0</span>, <span class="nm">10</span>, <span class="nm">2</span>)&nbsp;&nbsp;<span class="cm"># start, stop (excl), step</span></span></div><div class="out">array([0, 2, 4, 6, 8])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">linspace</span>(<span class="nm">0</span>, <span class="nm">1</span>, <span class="nm">5</span>)&nbsp;&nbsp;<span class="cm"># 5 evenly spaced, stop inclusive</span></span></div>
-        <div class="out">array([0.  , 0.25, 0.5 , 0.75, 1.  ])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">linspace</span>(<span class="nm">0</span>, <span class="nm">1</span>, <span class="nm">5</span>)&nbsp;&nbsp;<span class="cm"># 5 evenly spaced, stop inclusive</span></span></div><div class="out">array([0.  , 0.25, 0.5 , 0.75, 1.  ])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">zeros</span>((<span class="nm">2</span>, <span class="nm">3</span>))&nbsp;&nbsp;<span class="cm"># 2 rows × 3 cols of 0.0</span></span></div>
-        <div class="out">array([[0., 0., 0.],
-       [0., 0., 0.]])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">zeros</span>((<span class="nm">2</span>, <span class="nm">3</span>))&nbsp;&nbsp;<span class="cm"># 2 rows × 3 cols</span></span></div><div class="out">array([[0., 0., 0.],
+       [0., 0., 0.]])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">ones</span>((<span class="nm">2</span>, <span class="nm">2</span>))&nbsp;&nbsp;<span class="cm"># 2×2 matrix of 1.0</span></span></div>
-        <div class="out">array([[1., 1.],
-       [1., 1.]])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">ones</span>((<span class="nm">2</span>, <span class="nm">2</span>))</span></div><div class="out">array([[1., 1.],
+       [1., 1.]])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">full</span>((<span class="nm">2</span>, <span class="nm">4</span>), <span class="nm">9</span>)&nbsp;&nbsp;<span class="cm"># 2×4 filled with 9</span></span></div>
-        <div class="out">array([[9, 9, 9, 9],
-       [9, 9, 9, 9]])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">full</span>((<span class="nm">2</span>, <span class="nm">4</span>), <span class="nm">9</span>)</span></div><div class="out">array([[9, 9, 9, 9],
+       [9, 9, 9, 9]])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">eye</span>(<span class="nm">3</span>)&nbsp;&nbsp;<span class="cm"># 3×3 identity matrix</span></span></div>
-        <div class="out">array([[1., 0., 0.],
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">eye</span>(<span class="nm">3</span>)&nbsp;&nbsp;<span class="cm"># identity matrix</span></span></div><div class="out">array([[1., 0., 0.],
        [0., 1., 0.],
-       [0., 0., 1.]])</div>
-      </div>
+       [0., 0., 1.]])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">diag</span>([<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>])&nbsp;&nbsp;<span class="cm"># diagonal matrix from 1-D</span></span></div>
-        <div class="out">array([[1, 0, 0],
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">diag</span>([<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>])&nbsp;&nbsp;<span class="cm"># diagonal matrix</span></span></div><div class="out">array([[1, 0, 0],
        [0, 2, 0],
-       [0, 0, 3]])</div>
-      </div>
+       [0, 0, 3]])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">logspace</span>(<span class="nm">0</span>, <span class="nm">3</span>, <span class="nm">4</span>)&nbsp;&nbsp;<span class="cm"># 10^0 → 10^3, 4 points</span></span></div>
-        <div class="out">array([   1.,   10.,  100., 1000.])</div>
-      </div>
-      <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">zeros_like</span>(np.<span class="fn">array</span>([<span class="nm">3</span>,<span class="nm">7</span>,<span class="nm">2</span>]))&nbsp;&nbsp;<span class="cm"># same shape/dtype, all 0</span></span></div>
-        <div class="out">array([0, 0, 0])</div>
-      </div>
-
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">logspace</span>(<span class="nm">0</span>, <span class="nm">3</span>, <span class="nm">4</span>)&nbsp;&nbsp;<span class="cm"># 10^0 → 10^3</span></span></div><div class="out">array([   1.,   10.,  100., 1000.])</div></div>
     </div>
+  </div>
+  <button class="exp-toggle" onclick="toggleExp(this)"><i class="fa fa-chevron-right arrow"></i> Explain</button>
+  <div class="exp-panel">
+    <ul>
+      <li><span class="hl">arange</span> — like Python's <span class="hl">range()</span> but returns an array. The <span class="hl2">stop</span> is <strong>exclusive</strong>.</li>
+      <li><span class="hl">linspace</span> — creates a specific number of points evenly spaced. Much better for plotting!</li>
+      <li><span class="hl">eye</span> — identity matrix (1s on diagonal, 0s elsewhere).</li>
+      <li><span class="hl">diag</span> — extracts a diagonal or creates a matrix from one.</li>
+    </ul>
+    <div class="note-line"><i class="fa fa-circle-info"></i>Use <span class="hl2">np.empty</span> for very large result arrays; it doesn't zero-fill memory, saving time.</div>
   </div>
 </section>
 
-<!-- ══════════════ DATA TYPES ══════════════ -->
+<!-- ══ DATA TYPES ══ -->
 <section id="dtypes">
   <div class="sec-head"><div class="sec-icon ip"><i class="fa fa-tag"></i></div><h2>Data Types (dtype)</h2></div>
-  <p>Every array stores a single dtype. Choosing correctly saves memory and speeds up computation.</p>
-
   <div class="tbl-wrap">
     <table>
-      <thead><tr><th>dtype</th><th>Alias</th><th>Range / Precision</th><th>Bytes</th><th>Use case</th></tr></thead>
+      <thead><tr><th>dtype</th><th>Alias</th><th>Range / Precision</th><th>Bytes</th><th>Common use</th></tr></thead>
       <tbody>
         <tr><td>np.bool_</td><td>?</td><td>True / False</td><td>1</td><td>Masks, conditions</td></tr>
         <tr><td>np.int8</td><td>i1</td><td>-128 → 127</td><td>1</td><td>Tiny integers</td></tr>
-        <tr><td>np.int16</td><td>i2</td><td>-32 768 → 32 767</td><td>2</td><td>Audio samples</td></tr>
         <tr><td>np.int32</td><td>i4</td><td>±2.1 billion</td><td>4</td><td>Indices, IDs</td></tr>
         <tr><td>np.int64</td><td>i8</td><td>±9.2 × 10¹⁸</td><td>8</td><td>Default int</td></tr>
         <tr><td>np.uint8</td><td>u1</td><td>0 → 255</td><td>1</td><td>Image pixels</td></tr>
-        <tr><td>np.float16</td><td>f2</td><td>~3 sig. digits</td><td>2</td><td>ML half-precision</td></tr>
         <tr><td>np.float32</td><td>f4</td><td>~7 sig. digits</td><td>4</td><td>GPU / ML</td></tr>
         <tr><td>np.float64</td><td>f8</td><td>~15 sig. digits</td><td>8</td><td>Default float</td></tr>
         <tr><td>np.complex128</td><td>c16</td><td>2 × float64</td><td>16</td><td>FFT, signals</td></tr>
@@ -477,105 +446,71 @@ done</div>
       </tbody>
     </table>
   </div>
-
   <div class="repl">
     <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">python</span></div>
     <div class="repl-body">
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a = np.<span class="fn">array</span>([<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>])</span></div>
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.dtype</span></div>
-        <div class="out">dtype('int64')</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a = np.<span class="fn">array</span>([<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>])</span></div></div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.dtype</span></div><div class="out">dtype('int64')</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="fn">astype</span>(np.float32)&nbsp;&nbsp;<span class="cm"># cast to float32</span></span></div>
-        <div class="out">array([1., 2., 3.], dtype=float32)</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="fn">astype</span>(np.float32)</span></div><div class="out">array([1., 2., 3.], dtype=float32)</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">iinfo</span>(np.int8)&nbsp;&nbsp;<span class="cm"># integer type info</span></span></div>
-        <div class="out">iinfo(min=-128, max=127, dtype=int8)</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">iinfo</span>(np.int8)&nbsp;&nbsp;<span class="cm"># int type limits</span></span></div><div class="out">iinfo(min=-128, max=127, dtype=int8)</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">finfo</span>(np.float32).eps&nbsp;&nbsp;<span class="cm"># smallest representable difference</span></span></div>
-        <div class="out">1.1920929e-07</div>
-      </div>
-
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">finfo</span>(np.float32).eps&nbsp;&nbsp;<span class="cm"># float precision</span></span></div><div class="out">1.1920929e-07</div></div>
     </div>
+  </div>
+  <button class="exp-toggle" onclick="toggleExp(this)"><i class="fa fa-chevron-right arrow"></i> Explain</button>
+  <div class="exp-panel">
+    <ul>
+      <li><strong>dtype</strong> is the physical "blueprint". All elements must share one type for speed.</li>
+      <li><span class="hl">.astype()</span> returns a <strong>copy</strong> of the data with the new type.</li>
+      <li><span class="hl">np.iinfo</span> and <span class="hl2">np.finfo</span> show you the bit limits of integers and floats.</li>
+    </ul>
+    <div class="note-line"><i class="fa fa-circle-info"></i>Images usually use <span class="hl2">uint8</span> (0-255), while deep learning uses <span class="hl2">float32</span>.</div>
   </div>
 </section>
 
-<!-- ══════════════ ATTRIBUTES ══════════════ -->
+<!-- ══ ATTRIBUTES ══ -->
 <section id="attributes">
   <div class="sec-head"><div class="sec-icon ib"><i class="fa fa-info-circle"></i></div><h2>Array Attributes</h2></div>
   <div class="repl">
     <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">python</span></div>
     <div class="repl-body">
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a = np.<span class="fn">array</span>([[<span class="nm">1</span>,<span class="nm">2</span>,<span class="nm">3</span>],[<span class="nm">4</span>,<span class="nm">5</span>,<span class="nm">6</span>]])</span></div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a = np.<span class="fn">array</span>([[<span class="nm">1</span>,<span class="nm">2</span>,<span class="nm">3</span>],[<span class="nm">4</span>,<span class="nm">5</span>,<span class="nm">6</span>]])</span></div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="at">ndim</span>&nbsp;&nbsp;<span class="cm"># number of dimensions</span></span></div>
-        <div class="out">2</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="at">ndim</span>&nbsp;&nbsp;<span class="cm"># number of axes</span></span></div><div class="out">2</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="at">shape</span>&nbsp;&nbsp;<span class="cm"># (rows, cols)</span></span></div>
-        <div class="out">(2, 3)</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="at">shape</span>&nbsp;&nbsp;<span class="cm"># (rows, cols)</span></span></div><div class="out">(2, 3)</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="at">size</span>&nbsp;&nbsp;<span class="cm"># total number of elements</span></span></div>
-        <div class="out">6</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="at">size</span>&nbsp;&nbsp;<span class="cm"># total elements</span></span></div><div class="out">6</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="at">dtype</span>&nbsp;&nbsp;<span class="cm"># element type</span></span></div>
-        <div class="out">dtype('int64')</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="at">dtype</span></span></div><div class="out">dtype('int64')</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="at">itemsize</span>&nbsp;&nbsp;<span class="cm"># bytes per element</span></span></div>
-        <div class="out">8</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="at">itemsize</span>&nbsp;&nbsp;<span class="cm"># bytes per element</span></span></div><div class="out">8</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="at">nbytes</span>&nbsp;&nbsp;<span class="cm"># total bytes = size × itemsize</span></span></div>
-        <div class="out">48</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="at">nbytes</span>&nbsp;&nbsp;<span class="cm"># total memory used</span></span></div><div class="out">48</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="at">strides</span>&nbsp;&nbsp;<span class="cm"># bytes to step along each axis</span></span></div>
-        <div class="out">(24, 8)</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="at">strides</span>&nbsp;&nbsp;<span class="cm"># bytes to step per axis</span></span></div><div class="out">(24, 8)</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="at">T</span>&nbsp;&nbsp;<span class="cm"># transpose</span></span></div>
-        <div class="out">array([[1, 4],
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="at">T</span>&nbsp;&nbsp;<span class="cm"># transpose</span></span></div><div class="out">array([[1, 4],
        [2, 5],
-       [3, 6]])</div>
-      </div>
-
+       [3, 6]])</div></div>
     </div>
+  </div>
+  <button class="exp-toggle" onclick="toggleExp(this)"><i class="fa fa-chevron-right arrow"></i> Explain</button>
+  <div class="exp-panel">
+    <ul>
+      <li><span class="hl">ndim</span> — dimensions. A scalar is 0, vector is 1, matrix is 2, RGB images are typically 3.</li>
+      <li><span class="hl">shape</span> — a tuple of ints. For a standard image, it might be <span class="hl2">(height, width, colors)</span>.</li>
+      <li><span class="hl">size</span> — total number of elements. <span class="hl2">np.prod(a.shape)</span> is always equal to <span class="hl2">a.size</span>.</li>
+      <li><span class="hl">itemsize</span> — size in bytes of each element. An <span class="hl">int64</span> has an <span class="hl">itemsize</span> of 8.</li>
+      <li><span class="hl">nbytes</span> — total bytes used in memory. Helpful for calculating system requirements.</li>
+      <li><span class="hl">strides</span> — the memory layout. It's the number of bytes to step along each axis. Advanced but key to understanding how "views" work without copying data.</li>
+    </ul>
   </div>
 </section>
 
-<!-- ══════════════ INDEXING ══════════════ -->
+<!-- ══ INDEXING ══ -->
 <section id="indexing">
   <div class="sec-head"><div class="sec-icon io"><i class="fa fa-crosshairs"></i></div><h2>Indexing &amp; Slicing</h2></div>
 
@@ -583,489 +518,299 @@ done</div>
   <div class="repl">
     <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">python</span></div>
     <div class="repl-body">
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a = np.<span class="fn">array</span>([<span class="nm">10</span>, <span class="nm">20</span>, <span class="nm">30</span>, <span class="nm">40</span>, <span class="nm">50</span>])</span></div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a = np.<span class="fn">array</span>([<span class="nm">10</span>, <span class="nm">20</span>, <span class="nm">30</span>, <span class="nm">40</span>, <span class="nm">50</span>])</span></div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a[<span class="nm">0</span>]&nbsp;&nbsp;<span class="cm"># first element</span></span></div>
-        <div class="out">10</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a[<span class="nm">0</span>]&nbsp;&nbsp;<span class="cm"># first element</span></span></div><div class="out">10</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a[-<span class="nm">1</span>]&nbsp;&nbsp;<span class="cm"># last element</span></span></div>
-        <div class="out">50</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a[-<span class="nm">1</span>]&nbsp;&nbsp;<span class="cm"># last element</span></span></div><div class="out">50</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a[<span class="nm">1</span>:<span class="nm">4</span>]&nbsp;&nbsp;<span class="cm"># indices 1,2,3 (stop exclusive)</span></span></div>
-        <div class="out">array([20, 30, 40])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a[<span class="nm">1</span>:<span class="nm">4</span>]&nbsp;&nbsp;<span class="cm"># indices 1,2,3</span></span></div><div class="out">array([20, 30, 40])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a[::<span class="nm">2</span>]&nbsp;&nbsp;<span class="cm"># every 2nd element</span></span></div>
-        <div class="out">array([10, 30, 50])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a[::<span class="nm">2</span>]&nbsp;&nbsp;<span class="cm"># every 2nd</span></span></div><div class="out">array([10, 30, 50])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a[::-<span class="nm">1</span>]&nbsp;&nbsp;<span class="cm"># reverse</span></span></div>
-        <div class="out">array([50, 40, 30, 20, 10])</div>
-      </div>
-
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a[::-<span class="nm">1</span>]&nbsp;&nbsp;<span class="cm"># reversed</span></span></div><div class="out">array([50, 40, 30, 20, 10])</div></div>
     </div>
+  </div>
+  <button class="exp-toggle" onclick="toggleExp(this)"><i class="fa fa-chevron-right arrow"></i> Explain</button>
+  <div class="exp-panel">
+    Slicing syntax is <span class="hl">start : stop : step</span> — identical to Python lists, but returns an ndarray.
+    <ul>
+      <li><span class="hl">a[0]</span> — zero-based. First element is index 0, last is index -1 (counts from the end).</li>
+      <li><span class="hl">a[1:4]</span> — stop index is <strong>exclusive</strong>. You get indices 1, 2, 3 — not 4. This is the same rule as Python's <span class="hl">range()</span>.</li>
+      <li><span class="hl">a[::2]</span> — step of 2 picks every other element. Omitting start/stop means "from beginning" / "to end".</li>
+      <li><span class="hl">a[::-1]</span> — negative step reverses the array. No data is copied; it's just a view with a negative stride.</li>
+    </ul>
   </div>
 
   <h3>2-D Array</h3>
   <div class="repl">
     <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">python</span></div>
     <div class="repl-body">
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">m = np.<span class="fn">array</span>([[<span class="nm">1</span>,<span class="nm">2</span>,<span class="nm">3</span>],[<span class="nm">4</span>,<span class="nm">5</span>,<span class="nm">6</span>],[<span class="nm">7</span>,<span class="nm">8</span>,<span class="nm">9</span>]])</span></div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">m = np.<span class="fn">array</span>([[<span class="nm">1</span>,<span class="nm">2</span>,<span class="nm">3</span>],[<span class="nm">4</span>,<span class="nm">5</span>,<span class="nm">6</span>],[<span class="nm">7</span>,<span class="nm">8</span>,<span class="nm">9</span>]])</span></div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">m[<span class="nm">0</span>, <span class="nm">1</span>]&nbsp;&nbsp;<span class="cm"># row 0, column 1</span></span></div>
-        <div class="out">2</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">m[<span class="nm">0</span>, <span class="nm">1</span>]&nbsp;&nbsp;<span class="cm"># row 0, col 1</span></span></div><div class="out">2</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">m[<span class="nm">1</span>]&nbsp;&nbsp;<span class="cm"># entire row 1</span></span></div>
-        <div class="out">array([4, 5, 6])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">m[<span class="nm">1</span>]&nbsp;&nbsp;<span class="cm"># entire row 1</span></span></div><div class="out">array([4, 5, 6])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">m[:, <span class="nm">2</span>]&nbsp;&nbsp;<span class="cm"># entire column 2</span></span></div>
-        <div class="out">array([3, 6, 9])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">m[:, <span class="nm">2</span>]&nbsp;&nbsp;<span class="cm"># entire col 2</span></span></div><div class="out">array([3, 6, 9])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">m[<span class="nm">0</span>:<span class="nm">2</span>, <span class="nm">1</span>:<span class="nm">3</span>]&nbsp;&nbsp;<span class="cm"># rows 0-1, cols 1-2 → submatrix</span></span></div>
-        <div class="out">array([[2, 3],
-       [5, 6]])</div>
-      </div>
-      <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">m[-<span class="nm">1</span>, :]&nbsp;&nbsp;<span class="cm"># last row</span></span></div>
-        <div class="out">array([7, 8, 9])</div>
-      </div>
-
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">m[<span class="nm">0</span>:<span class="nm">2</span>, <span class="nm">1</span>:<span class="nm">3</span>]&nbsp;&nbsp;<span class="cm"># submatrix</span></span></div><div class="out">array([[2, 3],
+       [5, 6]])</div></div>
     </div>
+  </div>
+  <button class="exp-toggle" onclick="toggleExp(this)"><i class="fa fa-chevron-right arrow"></i> Explain</button>
+  <div class="exp-panel">
+    For 2-D arrays, you provide two indices/slices separated by a comma: <span class="hl">m[row, col]</span>.
+    <ul>
+      <li><span class="hl">m[0, 1]</span> — single element at row 0, column 1.</li>
+      <li><span class="hl">m[1]</span> — shorthand for <span class="hl">m[1, :]</span>. Omitting the column selector gives the entire row.</li>
+      <li><span class="hl">m[:, 2]</span> — the colon <span class="hl2">:</span> means "all rows". This selects column 2 from every row — useful for extracting a feature column from a dataset.</li>
+      <li><span class="hl">m[0:2, 1:3]</span> — both axes sliced. Produces a 2×2 submatrix from the top-right region.</li>
+    </ul>
+    <div class="note-line"><i class="fa fa-circle-info"></i>All these return <strong>views</strong>, not copies. They share memory with <span class="hl">m</span>.</div>
   </div>
 
   <h3>Fancy &amp; Boolean Indexing</h3>
   <div class="repl">
     <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">python</span></div>
     <div class="repl-body">
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a = np.<span class="fn">array</span>([<span class="nm">10</span>, <span class="nm">20</span>, <span class="nm">30</span>, <span class="nm">40</span>, <span class="nm">50</span>])</span></div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a = np.<span class="fn">array</span>([<span class="nm">10</span>, <span class="nm">20</span>, <span class="nm">30</span>, <span class="nm">40</span>, <span class="nm">50</span>])</span></div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a[[<span class="nm">0</span>, <span class="nm">2</span>, <span class="nm">4</span>]]&nbsp;&nbsp;<span class="cm"># integer array → pick elements</span></span></div>
-        <div class="out">array([10, 30, 50])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a[[<span class="nm">0</span>, <span class="nm">2</span>, <span class="nm">4</span>]]&nbsp;&nbsp;<span class="cm"># pick by index list</span></span></div><div class="out">array([10, 30, 50])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a > <span class="nm">25</span>&nbsp;&nbsp;<span class="cm"># boolean mask</span></span></div>
-        <div class="out">array([False, False,  True,  True,  True])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a > <span class="nm">25</span>&nbsp;&nbsp;<span class="cm"># boolean mask</span></span></div><div class="out">array([False, False,  True,  True,  True])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a[a > <span class="nm">25</span>]&nbsp;&nbsp;<span class="cm"># filter with mask</span></span></div>
-        <div class="out">array([30, 40, 50])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a[a > <span class="nm">25</span>]&nbsp;&nbsp;<span class="cm"># filter with mask</span></span></div><div class="out">array([30, 40, 50])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">where</span>(a > <span class="nm">25</span>, a, <span class="nm">0</span>)&nbsp;&nbsp;<span class="cm"># conditional: keep if True, else 0</span></span></div>
-        <div class="out">array([ 0,  0, 30, 40, 50])</div>
-      </div>
-      <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">argwhere</span>(a > <span class="nm">25</span>)&nbsp;&nbsp;<span class="cm"># indices where True</span></span></div>
-        <div class="out">array([[2],
-       [3],
-       [4]])</div>
-      </div>
-
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">where</span>(a > <span class="nm">25</span>, a, <span class="nm">0</span>)&nbsp;&nbsp;<span class="cm"># keep or replace</span></span></div><div class="out">array([ 0,  0, 30, 40, 50])</div></div>
     </div>
   </div>
-  <div class="box tip"><i class="fa fa-lightbulb"></i><div>Slices return <strong>views</strong> — no copy is made. Changing the slice changes the original. Use <code>.copy()</code> when you need independence.</div></div>
+  <button class="exp-toggle" onclick="toggleExp(this)"><i class="fa fa-chevron-right arrow"></i> Explain</button>
+  <div class="exp-panel">
+    <ul>
+      <li><strong>Fancy indexing</strong> — passing a list or array of indices as the selector. It extracts specific elements into a <strong>new array (copy)</strong>. Order in the target list matters!</li>
+      <li><strong>Boolean masking</strong> — passing a boolean array. NumPy extracts only the elements where the mask is <span class="hl2">True</span>. Extremely fast for filtering outliers or specific categories.</li>
+      <li><span class="hl">np.where(cond, x, y)</span> — the vectorized "ternary" operator. If <span class="hl2">cond</span> is true, pick element from <span class="hl2">x</span>, otherwise pick from <span class="hl2">y</span>.</li>
+    </ul>
+    <div class="note-line"><i class="fa fa-circle-info"></i>Slicing returns <strong>views</strong> (efficient), but Fancy/Boolean indexing returns <strong>copies</strong> (safe but uses memory).</div>
+  </div>
 </section>
 
-<!-- ══════════════ RESHAPING ══════════════ -->
+<!-- ══ RESHAPING ══ -->
 <section id="reshaping">
   <div class="sec-head"><div class="sec-icon ip"><i class="fa fa-expand-arrows-alt"></i></div><h2>Reshaping &amp; Stacking</h2></div>
   <div class="repl">
     <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">python</span></div>
     <div class="repl-body">
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a = np.<span class="fn">arange</span>(<span class="nm">12</span>)</span></div>
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a</span></div>
-        <div class="out">array([ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a = np.<span class="fn">arange</span>(<span class="nm">12</span>)</span></div><div class="out">array([ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="fn">reshape</span>(<span class="nm">3</span>, <span class="nm">4</span>)&nbsp;&nbsp;<span class="cm"># 3 rows, 4 cols</span></span></div>
-        <div class="out">array([[ 0,  1,  2,  3],
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="fn">reshape</span>(<span class="nm">3</span>, <span class="nm">4</span>)&nbsp;&nbsp;<span class="cm"># 3 rows, 4 cols</span></span></div><div class="out">array([[ 0,  1,  2,  3],
        [ 4,  5,  6,  7],
-       [ 8,  9, 10, 11]])</div>
-      </div>
+       [ 8,  9, 10, 11]])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="fn">reshape</span>(-<span class="nm">1</span>, <span class="nm">4</span>)&nbsp;&nbsp;<span class="cm"># -1 means "infer this dimension"</span></span></div>
-        <div class="out">array([[ 0,  1,  2,  3],
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="fn">reshape</span>(-<span class="nm">1</span>, <span class="nm">4</span>)&nbsp;&nbsp;<span class="cm"># -1 = infer this dim</span></span></div><div class="out">array([[ 0,  1,  2,  3],
        [ 4,  5,  6,  7],
-       [ 8,  9, 10, 11]])</div>
-      </div>
+       [ 8,  9, 10, 11]])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="fn">reshape</span>(<span class="nm">2</span>, <span class="nm">3</span>, <span class="nm">2</span>)&nbsp;&nbsp;<span class="cm"># 3-D reshape</span></span></div>
-        <div class="out">array([[[ 0,  1],
-        [ 2,  3],
-        [ 4,  5]],
-       [[ 6,  7],
-        [ 8,  9],
-        [10, 11]]])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="fn">ravel</span>()&nbsp;&nbsp;<span class="cm"># flatten → 1-D</span></span></div><div class="out">array([ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="fn">ravel</span>()&nbsp;&nbsp;<span class="cm"># flatten to 1-D (view when possible)</span></span></div>
-        <div class="out">array([ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">x = np.<span class="fn">array</span>([<span class="nm">1</span>,<span class="nm">2</span>])&nbsp;;&nbsp;y = np.<span class="fn">array</span>([<span class="nm">3</span>,<span class="nm">4</span>])</span></div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">x = np.<span class="fn">array</span>([<span class="nm">1</span>, <span class="nm">2</span>])&nbsp;;&nbsp;y = np.<span class="fn">array</span>([<span class="nm">3</span>, <span class="nm">4</span>])</span></div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">vstack</span>([x, y])&nbsp;&nbsp;<span class="cm"># stack as new rows</span></span></div><div class="out">array([[1, 2],
+       [3, 4]])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">vstack</span>([x, y])&nbsp;&nbsp;<span class="cm"># vertical stack (new rows)</span></span></div>
-        <div class="out">array([[1, 2],
-       [3, 4]])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">hstack</span>([x, y])&nbsp;&nbsp;<span class="cm"># concatenate along cols</span></span></div><div class="out">array([1, 2, 3, 4])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">hstack</span>([x, y])&nbsp;&nbsp;<span class="cm"># horizontal stack (new cols)</span></span></div>
-        <div class="out">array([1, 2, 3, 4])</div>
-      </div>
-      <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">expand_dims</span>(x, axis=<span class="nm">0</span>)&nbsp;&nbsp;<span class="cm"># insert new axis → (1,2)</span></span></div>
-        <div class="out">array([[1, 2]])</div>
-      </div>
-      <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">split</span>(np.<span class="fn">arange</span>(<span class="nm">6</span>), <span class="nm">3</span>)&nbsp;&nbsp;<span class="cm"># split into 3 equal parts</span></span></div>
-        <div class="out">[array([0, 1]), array([2, 3]), array([4, 5])]</div>
-      </div>
-
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">expand_dims</span>(x, axis=<span class="nm">0</span>)&nbsp;&nbsp;<span class="cm"># (2,) → (1,2)</span></span></div><div class="out">array([[1, 2]])</div></div>
     </div>
+  </div>
+  <button class="exp-toggle" onclick="toggleExp(this)"><i class="fa fa-chevron-right arrow"></i> Explain</button>
+  <div class="exp-panel">
+    <ul>
+      <li><span class="hl">reshape()</span> — changes the array structure without changing the data. Total elements must match (<span class="hl2">3*4 = 12</span>).</li>
+      <li><strong>The -1 shortcut</strong> — allows NumPy to calculate that dimension for you. For <span class="hl2">12</span> elements, <span class="hl2">reshape(-1, 2)</span> automatically chooses <span class="hl2">6</span> for the first dimension.</li>
+      <li><span class="hl">vstack / hstack</span> — stack arrays vertically (rows) or horizontally (columns). Fundamental for combining feature sets in data prep.</li>
+      <li><span class="hl">expand_dims</span> — adds a "ghost" dimension of size 1. Often required to make broadcasting rules align.</li>
+    </ul>
   </div>
 </section>
 
-<!-- ══════════════ VIEWS VS COPIES ══════════════ -->
+<!-- ══ VIEWS vs COPIES ══ -->
 <section id="copying">
   <div class="sec-head"><div class="sec-icon ib"><i class="fa fa-copy"></i></div><h2>Views vs Copies</h2></div>
-  <p>This is one of the most common sources of bugs in NumPy. A <strong>view</strong> shares memory with the original; a <strong>copy</strong> is independent.</p>
   <div class="repl">
     <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">python</span></div>
     <div class="repl-body">
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a = np.<span class="fn">array</span>([<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>, <span class="nm">4</span>, <span class="nm">5</span>])</span></div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a = np.<span class="fn">array</span>([<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>, <span class="nm">4</span>, <span class="nm">5</span>])</span></div></div>
       <div class="stmt-gap"></div>
-
       <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">view = a[<span class="nm">1</span>:<span class="nm">4</span>]&nbsp;&nbsp;<span class="cm"># slice = VIEW</span></span></div>
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">view[<span class="nm">0</span>] = <span class="nm">99</span>&nbsp;&nbsp;<span class="cm"># mutate the view…</span></span></div>
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a&nbsp;&nbsp;<span class="cm"># …changes the original!</span></span></div>
+        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">view = a[<span class="nm">1</span>:<span class="nm">4</span>]&nbsp;&nbsp;<span class="cm"># slice = VIEW (shares memory)</span></span></div>
+        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">view[<span class="nm">0</span>] = <span class="nm">99</span></span></div>
+        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a&nbsp;&nbsp;<span class="cm"># original changed!</span></span></div>
         <div class="out">array([ 1, 99,  3,  4,  5])</div>
       </div>
       <div class="stmt-gap"></div>
-
       <div class="stmt">
         <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a = np.<span class="fn">array</span>([<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>, <span class="nm">4</span>, <span class="nm">5</span>])</span></div>
         <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">cop = a[<span class="nm">1</span>:<span class="nm">4</span>].<span class="fn">copy</span>()&nbsp;&nbsp;<span class="cm"># explicit copy</span></span></div>
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">cop[<span class="nm">0</span>] = <span class="nm">99</span>&nbsp;&nbsp;<span class="cm"># mutate the copy…</span></span></div>
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a&nbsp;&nbsp;<span class="cm"># …original is safe</span></span></div>
+        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">cop[<span class="nm">0</span>] = <span class="nm">99</span></span></div>
+        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a&nbsp;&nbsp;<span class="cm"># original untouched</span></span></div>
         <div class="out">array([1, 2, 3, 4, 5])</div>
       </div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">view.<span class="at">base</span> <span class="kw">is</span> a&nbsp;&nbsp;<span class="cm"># check if it shares memory</span></span></div>
-        <div class="out">True</div>
-      </div>
-
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">view.<span class="at">base</span> <span class="kw">is</span> a&nbsp;&nbsp;<span class="cm"># check shared memory</span></span></div><div class="out">True</div></div>
     </div>
   </div>
-  <div class="box warn"><i class="fa fa-triangle-exclamation"></i><div>Fancy indexing (integer arrays, boolean masks) always returns a <strong>copy</strong>, not a view.</div></div>
+  <button class="exp-toggle" onclick="toggleExp(this)"><i class="fa fa-chevron-right arrow"></i> Explain</button>
+  <div class="exp-panel">
+    <strong>This is the #1 cause of bugs in NumPy!</strong>
+    <ul>
+      <li>A <strong>View</strong> is just a different "window" into the same physical memory. Changing a view changes the original array! Slicing always creates a view.</li>
+      <li>A <strong>Copy</strong> is a completely separate block of memory. It inherits the data but is thereafter independent.</li>
+      <li><span class="hl">arr.base</span> — check this property. If it's not None, the array is a view of another array.</li>
+    </ul>
+    <div class="note-line"><i class="fa fa-triangle-exclamation"></i><strong>Always use <span class="hl">.copy()</span></strong> if you plan to modify a subset and want to keep the original data intact.</div>
+  </div>
 </section>
 
-<!-- ══════════════ MATH ══════════════ -->
+<!-- ══ MATH ══ -->
 <section id="math">
   <div class="sec-head"><div class="sec-icon ig"><i class="fa fa-calculator"></i></div><h2>Math &amp; ufuncs</h2></div>
-  <p>All arithmetic is element-wise by default. NumPy's universal functions (ufuncs) are implemented in C and vectorised — no Python loops needed.</p>
 
   <h3>Arithmetic</h3>
   <div class="repl">
     <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">python</span></div>
     <div class="repl-body">
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a = np.<span class="fn">array</span>([<span class="nm">1</span>, <span class="nm">4</span>, <span class="nm">9</span>, <span class="nm">16</span>])&nbsp;;&nbsp;b = np.<span class="fn">array</span>([<span class="nm">2</span>, <span class="nm">2</span>, <span class="nm">3</span>, <span class="nm">4</span>])</span></div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a = np.<span class="fn">array</span>([<span class="nm">1</span>,<span class="nm">4</span>,<span class="nm">9</span>,<span class="nm">16</span>])&nbsp;;&nbsp;b = np.<span class="fn">array</span>([<span class="nm">2</span>,<span class="nm">2</span>,<span class="nm">3</span>,<span class="nm">4</span>])</span></div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a + b</span></div>
-        <div class="out">array([ 3,  6, 12, 20])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a + b</span></div><div class="out">array([ 3,  6, 12, 20])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a - b</span></div>
-        <div class="out">array([-1,  2,  6, 12])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a * b</span></div><div class="out">array([ 2,  8, 27, 64])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a * b</span></div>
-        <div class="out">array([ 2,  8, 27, 64])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a / b</span></div><div class="out">array([0.5, 2. , 3. , 4. ])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a / b&nbsp;&nbsp;<span class="cm"># true division → always float</span></span></div>
-        <div class="out">array([0.5, 2. , 3. , 4. ])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a // b&nbsp;&nbsp;<span class="cm"># floor division</span></span></div><div class="out">array([0, 2, 3, 4])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a // b&nbsp;&nbsp;<span class="cm"># floor division</span></span></div>
-        <div class="out">array([0, 2, 3, 4])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a % b&nbsp;&nbsp;<span class="cm"># modulo</span></span></div><div class="out">array([1, 0, 0, 0])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a % b&nbsp;&nbsp;<span class="cm"># modulo</span></span></div>
-        <div class="out">array([1, 0, 0, 0])</div>
-      </div>
-      <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a ** <span class="nm">2</span>&nbsp;&nbsp;<span class="cm"># element-wise power</span></span></div>
-        <div class="out">array([  1,  16,  81, 256])</div>
-      </div>
-
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a ** <span class="nm">2</span></span></div><div class="out">array([  1,  16,  81, 256])</div></div>
     </div>
   </div>
+  <button class="exp-toggle" onclick="toggleExp(this)"><i class="fa fa-chevron-right arrow"></i> Explain</button>
+  <div class="exp-panel">
+    All standard Python operators work element-wise on arrays — no loop needed. This is called <strong>vectorisation</strong>.
+    <ul>
+      <li><span class="hl">+, -, *, /</span> — element-wise. Arrays must have compatible shapes (or broadcast).</li>
+      <li><span class="hl">/</span> always produces <span class="hl2">float64</span> even if both inputs are integers. Use <span class="hl">//</span> if you want integer floor division.</li>
+      <li><span class="hl">**</span> — element-wise power. <span class="hl2">a ** 0.5</span> is the same as <span class="hl2">np.sqrt(a)</span>.</li>
+    </ul>
+    <div class="note-line"><i class="fa fa-circle-info"></i>These operators call underlying <strong>ufuncs</strong> (e.g. <span class="hl">+</span> calls <span class="hl">np.add</span>). You can use the ufunc directly if you need extra options like an <span class="hl">out=</span> buffer.</div>
+  </div>
 
-  <h3>Universal Functions</h3>
+  <h3>Universal Functions (ufuncs)</h3>
   <div class="repl">
     <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">python</span></div>
     <div class="repl-body">
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a = np.<span class="fn">array</span>([<span class="nm">1</span>, <span class="nm">4</span>, <span class="nm">9</span>, <span class="nm">16</span>])</span></div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a = np.<span class="fn">array</span>([<span class="nm">1</span>, <span class="nm">4</span>, <span class="nm">9</span>, <span class="nm">16</span>])</span></div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">sqrt</span>(a)</span></div>
-        <div class="out">array([1., 2., 3., 4.])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">sqrt</span>(a)</span></div><div class="out">array([1., 2., 3., 4.])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">abs</span>(np.<span class="fn">array</span>([-<span class="nm">3</span>, <span class="nm">1</span>, -<span class="nm">7</span>]))</span></div>
-        <div class="out">array([3, 1, 7])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">abs</span>(np.<span class="fn">array</span>([-<span class="nm">3</span>, <span class="nm">1</span>, -<span class="nm">7</span>]))</span></div><div class="out">array([3, 1, 7])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">exp</span>(np.<span class="fn">array</span>([<span class="nm">0</span>, <span class="nm">1</span>, <span class="nm">2</span>])).<span class="fn">round</span>(<span class="nm">4</span>)</span></div>
-        <div class="out">array([1.    , 2.7183, 7.3891])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">exp</span>([<span class="nm">0</span>, <span class="nm">1</span>, <span class="nm">2</span>]).<span class="fn">round</span>(<span class="nm">4</span>)</span></div><div class="out">array([1.    , 2.7183, 7.3891])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">log</span>(a).<span class="fn">round</span>(<span class="nm">3</span>)&nbsp;&nbsp;<span class="cm"># natural log</span></span></div>
-        <div class="out">array([0.   , 1.386, 2.197, 2.773])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">log</span>(a).<span class="fn">round</span>(<span class="nm">3</span>)</span></div><div class="out">array([0.   , 1.386, 2.197, 2.773])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">log2</span>(np.<span class="fn">array</span>([<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">4</span>, <span class="nm">8</span>]))</span></div>
-        <div class="out">array([0., 1., 2., 3.])</div>
-      </div>
-
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">log2</span>([<span class="nm">1</span>,<span class="nm">2</span>,<span class="nm">4</span>,<span class="nm">8</span>])</span></div><div class="out">array([0., 1., 2., 3.])</div></div>
     </div>
+  </div>
+  <button class="exp-toggle" onclick="toggleExp(this)"><i class="fa fa-chevron-right arrow"></i> Explain</button>
+  <div class="exp-panel">
+    <strong>ufuncs</strong> (universal functions) are NumPy's C-compiled, vectorised versions of standard math functions.
+    <ul>
+      <li><span class="hl">np.sqrt(a)</span> — equivalent to <span class="hl2">a ** 0.5</span> but optimised and handles edge cases (e.g. negative numbers → <span class="hl2">nan</span>).</li>
+      <li><span class="hl">np.exp(x)</span> — computes eˣ for each element. Used in softmax, sigmoid, Gaussian distributions.</li>
+      <li><span class="hl">np.log(x)</span> — natural log (base e). <span class="hl">np.log2</span> and <span class="hl">np.log10</span> use base-2 and base-10 respectively.</li>
+    </ul>
+    <div class="note-line"><i class="fa fa-circle-info"></i>All ufuncs accept an optional <span class="hl">out=array</span> argument to write results into a pre-allocated array, avoiding a temporary allocation — useful for large arrays in performance-critical code.</div>
   </div>
 
   <h3>Trigonometry</h3>
   <div class="repl">
     <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">python</span></div>
     <div class="repl-body">
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">x = np.<span class="fn">array</span>([<span class="nm">0</span>, np.pi/<span class="nm">6</span>, np.pi/<span class="nm">4</span>, np.pi/<span class="nm">2</span>])</span></div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">x = np.<span class="fn">array</span>([<span class="nm">0</span>, np.pi/<span class="nm">6</span>, np.pi/<span class="nm">4</span>, np.pi/<span class="nm">2</span>])</span></div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">sin</span>(x).<span class="fn">round</span>(<span class="nm">4</span>)</span></div>
-        <div class="out">array([0.    , 0.5   , 0.7071, 1.    ])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">sin</span>(x).<span class="fn">round</span>(<span class="nm">4</span>)</span></div><div class="out">array([0.    , 0.5   , 0.7071, 1.    ])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">cos</span>(x).<span class="fn">round</span>(<span class="nm">4</span>)</span></div>
-        <div class="out">array([1.    , 0.866 , 0.7071, 0.    ])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">cos</span>(x).<span class="fn">round</span>(<span class="nm">4</span>)</span></div><div class="out">array([1.    , 0.866 , 0.7071, 0.    ])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">degrees</span>(x)&nbsp;&nbsp;<span class="cm"># radians → degrees</span></span></div>
-        <div class="out">array([ 0., 30., 45., 90.])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">degrees</span>(x)</span></div><div class="out">array([ 0., 30., 45., 90.])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">arctan2</span>(<span class="nm">1</span>, <span class="nm">1</span>)&nbsp;&nbsp;<span class="cm"># atan(y/x) handling quadrant</span></span></div>
-        <div class="out">0.7853981633974483  # = π/4</div>
-      </div>
-
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">arctan2</span>(<span class="nm">1</span>, <span class="nm">1</span>)&nbsp;&nbsp;<span class="cm"># atan(y/x), handles quadrant</span></span></div><div class="out">0.7853981633974483  # π/4 = 45°</div></div>
     </div>
+  </div>
+  <button class="exp-toggle" onclick="toggleExp(this)"><i class="fa fa-chevron-right arrow"></i> Explain</button>
+  <div class="exp-panel">
+    <ul>
+      <li>NumPy uses <span class="hl2">radians</span> for all trig inputs. Multiply by <span class="hl2">(π / 180)</span> to convert degrees.</li>
+      <li><span class="hl">np.pi</span> is provided exactly to the machine's floating point limit.</li>
+      <li><span class="hl">arctan2(y, x)</span> is widely used in physics and robotics because it correctly identifies the angle's quadrant by checking the signs of both <span class="hl2">x</span> and <span class="hl2">y</span>.</li>
+    </ul>
   </div>
 </section>
 
-<!-- ══════════════ AGGREGATION ══════════════ -->
+<!-- ══ AGGREGATION ══ -->
 <section id="aggregation">
   <div class="sec-head"><div class="sec-icon io"><i class="fa fa-chart-bar"></i></div><h2>Aggregation &amp; Statistics</h2></div>
   <div class="repl">
     <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">python</span></div>
     <div class="repl-body">
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a = np.<span class="fn">array</span>([[<span class="nm">1</span>,<span class="nm">2</span>,<span class="nm">3</span>],[<span class="nm">4</span>,<span class="nm">5</span>,<span class="nm">6</span>]])</span></div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a = np.<span class="fn">array</span>([[<span class="nm">1</span>,<span class="nm">2</span>,<span class="nm">3</span>],[<span class="nm">4</span>,<span class="nm">5</span>,<span class="nm">6</span>]])</span></div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="fn">sum</span>()&nbsp;&nbsp;<span class="cm"># sum all elements</span></span></div>
-        <div class="out">21</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="fn">sum</span>()&nbsp;&nbsp;<span class="cm"># all elements</span></span></div><div class="out">21</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="fn">sum</span>(axis=<span class="nm">0</span>)&nbsp;&nbsp;<span class="cm"># sum down each column</span></span></div>
-        <div class="out">array([5, 7, 9])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="fn">sum</span>(axis=<span class="nm">0</span>)&nbsp;&nbsp;<span class="cm"># sum down each column</span></span></div><div class="out">array([5, 7, 9])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="fn">sum</span>(axis=<span class="nm">1</span>)&nbsp;&nbsp;<span class="cm"># sum across each row</span></span></div>
-        <div class="out">array([ 6, 15])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="fn">sum</span>(axis=<span class="nm">1</span>)&nbsp;&nbsp;<span class="cm"># sum across each row</span></span></div><div class="out">array([ 6, 15])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="fn">mean</span>()</span></div>
-        <div class="out">3.5</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="fn">mean</span>(), a.<span class="fn">std</span>().<span class="fn">round</span>(<span class="nm">4</span>), a.<span class="fn">var</span>().<span class="fn">round</span>(<span class="nm">4</span>)</span></div><div class="out">(3.5, 1.7078, 2.9167)</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="fn">std</span>().<span class="fn">round</span>(<span class="nm">4</span>)&nbsp;&nbsp;<span class="cm"># standard deviation</span></span></div>
-        <div class="out">1.7078</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="fn">min</span>(), a.<span class="fn">max</span>()</span></div><div class="out">(1, 6)</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="fn">var</span>().<span class="fn">round</span>(<span class="nm">4</span>)&nbsp;&nbsp;<span class="cm"># variance</span></span></div>
-        <div class="out">2.9167</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="fn">argmin</span>(), a.<span class="fn">argmax</span>()&nbsp;&nbsp;<span class="cm"># flat indices</span></span></div><div class="out">(0, 5)</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="fn">min</span>(), a.<span class="fn">max</span>()</span></div>
-        <div class="out">(1, 6)</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">median</span>(a)</span></div><div class="out">3.5</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="fn">argmin</span>(), a.<span class="fn">argmax</span>()&nbsp;&nbsp;<span class="cm"># flat indices of min/max</span></span></div>
-        <div class="out">(0, 5)</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">percentile</span>(a, <span class="nm">75</span>)</span></div><div class="out">4.75</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">median</span>(a)</span></div>
-        <div class="out">3.5</div>
-      </div>
-      <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">percentile</span>(a, <span class="nm">75</span>)</span></div>
-        <div class="out">4.75</div>
-      </div>
-      <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="fn">cumsum</span>()&nbsp;&nbsp;<span class="cm"># running total (flattened)</span></span></div>
-        <div class="out">array([ 1,  3,  6, 10, 15, 21])</div>
-      </div>
-
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a.<span class="fn">cumsum</span>()</span></div><div class="out">array([ 1,  3,  6, 10, 15, 21])</div></div>
     </div>
+  </div>
+  <button class="exp-toggle" onclick="toggleExp(this)"><i class="fa fa-chevron-right arrow"></i> Explain</button>
+  <div class="exp-panel">
+    <strong>The <span class="hl">axis</span> parameter</strong> is vital for matrix operations.
+    <ul>
+      <li><span class="hl">axis=0</span> (columns) — think of it as "summing down" the rows. The rows are "squashed".</li>
+      <li><span class="hl">axis=1</span> (rows) — think of it as "summing across" the columns. The columns are "squashed".</li>
+      <li><span class="hl">argmin / argmax</span> — returns the index of the min/max element. By default, it works on a flattened array unless you specify an axis.</li>
+      <li><span class="hl">cumsum()</span> — powerful for cumulative probabilities or calculating growth over time.</li>
+    </ul>
+    <div class="note-line"><i class="fa fa-circle-info"></i>Many aggregations (sum, mean, std) have <strong>Nan-safe</strong> versions like <span class="hl">np.nanmean()</span> which ignore <span class="hl2">NaN</span> values.</div>
   </div>
 </section>
 
-<!-- ══════════════ BROADCASTING ══════════════ -->
+<!-- ══ BROADCASTING ══ -->
 <section id="broadcasting">
   <div class="sec-head"><div class="sec-icon ip"><i class="fa fa-broadcast-tower"></i></div><h2>Broadcasting</h2></div>
-  <p>Broadcasting stretches arrays along size-1 dimensions so element-wise operations can work on different shapes — without copying data.</p>
-  <div class="box note"><i class="fa fa-info-circle"></i><div><strong>Rule:</strong> Compare shapes right-to-left. Dimensions are compatible if they are equal, or one of them is 1. Missing dims are treated as 1.</div></div>
+  <div class="box note"><i class="fa fa-info-circle"></i><div><strong>Rule:</strong> Compare shapes right-to-left. Dimensions are compatible if they are equal, or one is 1. Missing dims are treated as 1.</div></div>
   <div class="repl">
     <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">python</span></div>
     <div class="repl-body">
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">array</span>([<span class="nm">1</span>,<span class="nm">2</span>,<span class="nm">3</span>]) + <span class="nm">10</span>&nbsp;&nbsp;<span class="cm"># scalar broadcast</span></span></div>
-        <div class="out">array([11, 12, 13])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">array</span>([<span class="nm">1</span>,<span class="nm">2</span>,<span class="nm">3</span>]) + <span class="nm">10</span>&nbsp;&nbsp;<span class="cm"># scalar → each element</span></span></div><div class="out">array([11, 12, 13])</div></div>
       <div class="stmt-gap"></div>
-
       <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line"><span class="cm"># (4,3) + (3,)  →  row added to every row</span></span></div>
+        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line"><span class="cm"># (4,3) + (3,) → row added to every row</span></span></div>
         <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">ones</span>((<span class="nm">4</span>,<span class="nm">3</span>)) + np.<span class="fn">array</span>([<span class="nm">10</span>,<span class="nm">20</span>,<span class="nm">30</span>])</span></div>
         <div class="out">array([[11., 21., 31.],
        [11., 21., 31.],
@@ -1073,470 +818,310 @@ done</div>
        [11., 21., 31.]])</div>
       </div>
       <div class="stmt-gap"></div>
-
       <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line"><span class="cm"># (3,1) + (1,3)  →  outer-sum → (3,3)</span></span></div>
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">col = np.<span class="fn">array</span>([[<span class="nm">1</span>],[<span class="nm">2</span>],[<span class="nm">3</span>]])&nbsp;&nbsp;<span class="cm"># shape (3,1)</span></span></div>
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">row = np.<span class="fn">array</span>([[<span class="nm">10</span>,<span class="nm">20</span>,<span class="nm">30</span>]])&nbsp;&nbsp;<span class="cm"># shape (1,3)</span></span></div>
+        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line"><span class="cm"># (3,1) + (1,3) → outer-sum (3,3)</span></span></div>
+        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">col = np.<span class="fn">array</span>([[<span class="nm">1</span>],[<span class="nm">2</span>],[<span class="nm">3</span>]])&nbsp;;&nbsp;row = np.<span class="fn">array</span>([[<span class="nm">10</span>,<span class="nm">20</span>,<span class="nm">30</span>]])</span></div>
         <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">col + row</span></div>
         <div class="out">array([[11, 21, 31],
        [12, 22, 32],
        [13, 23, 33]])</div>
       </div>
-
     </div>
+  </div>
+  <button class="exp-toggle" onclick="toggleExp(this)"><i class="fa fa-chevron-right arrow"></i> Explain</button>
+  <div class="exp-panel">
+    <strong>Broadcasting</strong> is NumPy's way of handling math between arrays of different shapes.
+    <ul>
+      <li>NumPy "stretches" (virtually repeats) the smaller array to match the larger one.</li>
+      <li><strong>Requirement:</strong> Compare dimensions from right-to-left. They must either be equal, or one of them must be 1.</li>
+      <li>Example: Ading a vector of shape <span class="hl">(3,)</span> to a matrix <span class="hl">(4, 3)</span> works because the vector is treated as <span class="hl">(1, 3)</span> and repeated 4 times.</li>
+    </ul>
+    <div class="note-line"><i class="fa fa-circle-info"></i>Broadcasting is memory-efficient because it never actually creates the repeated copies.</div>
   </div>
 </section>
 
-<!-- ══════════════ COMPARISON ══════════════ -->
+<!-- ══ COMPARISON ══ -->
 <section id="comparison">
   <div class="sec-head"><div class="sec-icon ir"><i class="fa fa-not-equal"></i></div><h2>Comparison &amp; Logic</h2></div>
   <div class="repl">
     <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">python</span></div>
     <div class="repl-body">
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a = np.<span class="fn">array</span>([<span class="nm">1</span>, <span class="nm">5</span>, <span class="nm">3</span>, <span class="nm">8</span>, <span class="nm">2</span>])</span></div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a = np.<span class="fn">array</span>([<span class="nm">1</span>, <span class="nm">5</span>, <span class="nm">3</span>, <span class="nm">8</span>, <span class="nm">2</span>])</span></div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a > <span class="nm">3</span></span></div>
-        <div class="out">array([False,  True, False,  True, False])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a > <span class="nm">3</span></span></div><div class="out">array([False,  True, False,  True, False])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">(a > <span class="nm">2</span>) & (a < <span class="nm">7</span>)&nbsp;&nbsp;<span class="cm"># AND — use & not 'and'</span></span></div>
-        <div class="out">array([False,  True,  True, False, False])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">(a > <span class="nm">2</span>) & (a < <span class="nm">7</span>)&nbsp;&nbsp;<span class="cm"># AND — use & not 'and'</span></span></div><div class="out">array([False,  True,  True, False, False])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">(a < <span class="nm">2</span>) | (a > <span class="nm">6</span>)&nbsp;&nbsp;<span class="cm"># OR</span></span></div>
-        <div class="out">array([ True, False, False,  True, False])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">(a < <span class="nm">2</span>) | (a > <span class="nm">6</span>)&nbsp;&nbsp;<span class="cm"># OR</span></span></div><div class="out">array([ True, False, False,  True, False])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">~(a > <span class="nm">3</span>)&nbsp;&nbsp;<span class="cm"># NOT</span></span></div>
-        <div class="out">array([ True, False,  True, False,  True])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">~(a > <span class="nm">3</span>)&nbsp;&nbsp;<span class="cm"># NOT</span></span></div><div class="out">array([ True, False,  True, False,  True])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">any</span>(a > <span class="nm">7</span>)&nbsp;&nbsp;<span class="cm"># is any element > 7?</span></span></div>
-        <div class="out">True</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">any</span>(a > <span class="nm">7</span>)</span></div><div class="out">True</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">all</span>(a > <span class="nm">0</span>)&nbsp;&nbsp;<span class="cm"># are all elements > 0?</span></span></div>
-        <div class="out">True</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">all</span>(a > <span class="nm">0</span>)</span></div><div class="out">True</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">count_nonzero</span>(a > <span class="nm">3</span>)&nbsp;&nbsp;<span class="cm"># how many satisfy condition</span></span></div>
-        <div class="out">2</div>
-      </div>
-      <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">argwhere</span>(a > <span class="nm">3</span>)&nbsp;&nbsp;<span class="cm"># indices where True</span></span></div>
-        <div class="out">array([[1],
-       [3]])</div>
-      </div>
-
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">count_nonzero</span>(a > <span class="nm">3</span>)</span></div><div class="out">2</div></div>
     </div>
+  </div>
+  <button class="exp-toggle" onclick="toggleExp(this)"><i class="fa fa-chevron-right arrow"></i> Explain</button>
+  <div class="exp-panel">
+    <ul>
+      <li>Logicals (<span class="hl">&gt;, &lt;, ==</span>) return a same-shaped <strong>mask</strong> of Booleans.</li>
+      <li><strong>Warning:</strong> Python's <span class="hl2">and</span> / <span class="hl2">or</span> keywords check for "truthiness" of the entire array, which is ambiguous. <strong>Always use bitwise operators (<span class="hl">&amp;</span>, <span class="hl">|</span>, <span class="hl">~</span>)</strong> for element-wise logic.</li>
+      <li><span class="hl">np.any()</span> and <span class="hl">np.all()</span> are the vectorized versions of "exists" and "for all".</li>
+    </ul>
   </div>
 </section>
 
-<!-- ══════════════ SORTING ══════════════ -->
+<!-- ══ SORTING ══ -->
 <section id="sorting">
   <div class="sec-head"><div class="sec-icon ig"><i class="fa fa-sort"></i></div><h2>Sorting</h2></div>
   <div class="repl">
     <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">python</span></div>
     <div class="repl-body">
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a = np.<span class="fn">array</span>([<span class="nm">3</span>, <span class="nm">1</span>, <span class="nm">4</span>, <span class="nm">1</span>, <span class="nm">5</span>, <span class="nm">9</span>, <span class="nm">2</span>])</span></div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a = np.<span class="fn">array</span>([<span class="nm">3</span>,<span class="nm">1</span>,<span class="nm">4</span>,<span class="nm">1</span>,<span class="nm">5</span>,<span class="nm">9</span>,<span class="nm">2</span>])</span></div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">sort</span>(a)&nbsp;&nbsp;<span class="cm"># sorted copy</span></span></div>
-        <div class="out">array([1, 1, 2, 3, 4, 5, 9])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">sort</span>(a)&nbsp;&nbsp;<span class="cm"># sorted copy</span></span></div><div class="out">array([1, 1, 2, 3, 4, 5, 9])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">argsort</span>(a)&nbsp;&nbsp;<span class="cm"># indices that would sort a</span></span></div>
-        <div class="out">array([1, 3, 6, 0, 2, 4, 5])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">argsort</span>(a)&nbsp;&nbsp;<span class="cm"># indices that sort a</span></span></div><div class="out">array([1, 3, 6, 0, 2, 4, 5])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a[np.<span class="fn">argsort</span>(a)]&nbsp;&nbsp;<span class="cm"># same as np.sort(a)</span></span></div>
-        <div class="out">array([1, 1, 2, 3, 4, 5, 9])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a[np.<span class="fn">argsort</span>(a)]&nbsp;&nbsp;<span class="cm"># same as np.sort(a)</span></span></div><div class="out">array([1, 1, 2, 3, 4, 5, 9])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">partition</span>(a, <span class="nm">3</span>)&nbsp;&nbsp;<span class="cm"># 3 smallest on left (not sorted)</span></span></div>
-        <div class="out">array([1, 1, 2, 3, 5, 9, 4])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">partition</span>(a, <span class="nm">3</span>)&nbsp;&nbsp;<span class="cm"># 3 smallest on left</span></span></div><div class="out">array([1, 1, 2, 3, 5, 9, 4])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">m = np.<span class="fn">array</span>([[<span class="nm">3</span>,<span class="nm">1</span>],[<span class="nm">9</span>,<span class="nm">4</span>]])</span></div>
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">sort</span>(m, axis=<span class="nm">1</span>)&nbsp;&nbsp;<span class="cm"># sort each row independently</span></span></div>
-        <div class="out">array([[1, 3],
-       [4, 9]])</div>
-      </div>
-
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">sort</span>(np.<span class="fn">array</span>([[<span class="nm">3</span>,<span class="nm">1</span>],[<span class="nm">9</span>,<span class="nm">4</span>]]), axis=<span class="nm">1</span>)</span></div><div class="out">array([[1, 3],
+       [4, 9]])</div></div>
     </div>
+  </div>
+  <button class="exp-toggle" onclick="toggleExp(this)"><i class="fa fa-chevron-right arrow"></i> Explain</button>
+  <div class="exp-panel">
+    <ul>
+      <li><span class="hl">np.sort()</span> returns a <strong>copy</strong>. To sort in-place, use <span class="hl">arr.sort()</span>.</li>
+      <li><strong>argsort</strong> doesn't move data; it gives you the map of "where elements should go". This is essential for sorting related data (like sorting Names based on Ages).</li>
+      <li><span class="hl">np.partition(arr, k)</span> is a "lazy" sort. It ensures the <span class="hl2">k</span>-th smallest element is in its correct place and everything smaller is to its left. <strong>Very fast</strong> for finding the top-10 or bottom-10 values in a huge list.</li>
+    </ul>
   </div>
 </section>
 
-<!-- ══════════════ SET OPERATIONS ══════════════ -->
+<!-- ══ SET OPERATIONS ══ -->
 <section id="sets">
   <div class="sec-head"><div class="sec-icon ip"><i class="fa fa-layer-group"></i></div><h2>Set Operations</h2></div>
   <div class="repl">
     <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">python</span></div>
     <div class="repl-body">
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a = np.<span class="fn">array</span>([<span class="nm">1</span>,<span class="nm">2</span>,<span class="nm">3</span>,<span class="nm">4</span>])&nbsp;;&nbsp;b = np.<span class="fn">array</span>([<span class="nm">3</span>,<span class="nm">4</span>,<span class="nm">5</span>,<span class="nm">6</span>])</span></div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a = np.<span class="fn">array</span>([<span class="nm">1</span>,<span class="nm">2</span>,<span class="nm">3</span>,<span class="nm">4</span>])&nbsp;;&nbsp;b = np.<span class="fn">array</span>([<span class="nm">3</span>,<span class="nm">4</span>,<span class="nm">5</span>,<span class="nm">6</span>])</span></div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">unique</span>([<span class="nm">1</span>,<span class="nm">2</span>,<span class="nm">2</span>,<span class="nm">3</span>,<span class="nm">3</span>,<span class="nm">3</span>])&nbsp;&nbsp;<span class="cm"># deduplicate</span></span></div>
-        <div class="out">array([1, 2, 3])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">unique</span>([<span class="nm">1</span>,<span class="nm">2</span>,<span class="nm">2</span>,<span class="nm">3</span>,<span class="nm">3</span>])</span></div><div class="out">array([1, 2, 3])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">intersect1d</span>(a, b)&nbsp;&nbsp;<span class="cm"># elements in both</span></span></div>
-        <div class="out">array([3, 4])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">intersect1d</span>(a, b)</span></div><div class="out">array([3, 4])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">union1d</span>(a, b)&nbsp;&nbsp;<span class="cm"># elements in either</span></span></div>
-        <div class="out">array([1, 2, 3, 4, 5, 6])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">union1d</span>(a, b)</span></div><div class="out">array([1, 2, 3, 4, 5, 6])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">setdiff1d</span>(a, b)&nbsp;&nbsp;<span class="cm"># in a but not in b</span></span></div>
-        <div class="out">array([1, 2])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">setdiff1d</span>(a, b)&nbsp;&nbsp;<span class="cm"># in a but not b</span></span></div><div class="out">array([1, 2])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">in1d</span>(a, b)&nbsp;&nbsp;<span class="cm"># which elements of a are in b?</span></span></div>
-        <div class="out">array([False, False,  True,  True])</div>
-      </div>
-
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">in1d</span>(a, b)&nbsp;&nbsp;<span class="cm"># membership test</span></span></div><div class="out">array([False, False,  True,  True])</div></div>
     </div>
+  </div>
+  <button class="exp-toggle" onclick="toggleExp(this)"><i class="fa fa-chevron-right arrow"></i> Explain</button>
+  <div class="exp-panel">
+    <ul>
+      <li><span class="hl">np.unique()</span> extracts distinct values. Add <span class="hl2">return_counts=True</span> to get frequencies (like <span class="hl2">value_counts</span> in pandas).</li>
+      <li>These operations treat the array as a 1D set, ignoring the original shape.</li>
+      <li><span class="hl">np.isin(element, test_elements)</span> is the preferred way to check if values exist in another list. Efficient even for massive datasets.</li>
+    </ul>
   </div>
 </section>
 
-<!-- ══════════════ LINEAR ALGEBRA ══════════════ -->
+<!-- ══ LINEAR ALGEBRA ══ -->
 <section id="linalg">
   <div class="sec-head"><div class="sec-icon ip"><i class="fa fa-superscript"></i></div><h2>Linear Algebra (numpy.linalg)</h2></div>
   <div class="repl">
     <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">python</span></div>
     <div class="repl-body">
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">A = np.<span class="fn">array</span>([[<span class="nm">2</span>,<span class="nm">1</span>],[<span class="nm">5</span>,<span class="nm">3</span>]])&nbsp;;&nbsp;b = np.<span class="fn">array</span>([<span class="nm">4</span>,<span class="nm">7</span>])</span></div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">A = np.<span class="fn">array</span>([[<span class="nm">2</span>,<span class="nm">1</span>],[<span class="nm">5</span>,<span class="nm">3</span>]])&nbsp;;&nbsp;b = np.<span class="fn">array</span>([<span class="nm">4</span>,<span class="nm">7</span>])</span></div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">A @ b&nbsp;&nbsp;<span class="cm"># matrix-vector multiply</span></span></div>
-        <div class="out">array([15, 41])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">A @ b&nbsp;&nbsp;<span class="cm"># matrix-vector multiply</span></span></div><div class="out">array([15, 41])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.linalg.<span class="fn">solve</span>(A, b)&nbsp;&nbsp;<span class="cm"># x such that Ax = b</span></span></div>
-        <div class="out">array([ 5., -6.])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.linalg.<span class="fn">solve</span>(A, b)&nbsp;&nbsp;<span class="cm"># solve Ax = b</span></span></div><div class="out">array([ 5., -6.])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.linalg.<span class="fn">det</span>(A)</span></div>
-        <div class="out">1.0</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.linalg.<span class="fn">det</span>(A)</span></div><div class="out">1.0</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.linalg.<span class="fn">inv</span>(A)</span></div>
-        <div class="out">array([[ 3., -1.],
-       [-5.,  2.]])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.linalg.<span class="fn">inv</span>(A)</span></div><div class="out">array([[ 3., -1.],
+       [-5.,  2.]])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">vals, vecs = np.linalg.<span class="fn">eig</span>(A)</span></div>
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">vals.<span class="fn">round</span>(<span class="nm">4</span>)&nbsp;&nbsp;<span class="cm"># eigenvalues</span></span></div>
-        <div class="out">array([0.2679, 4.7321])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">vals, vecs = np.linalg.<span class="fn">eig</span>(A)</span></div><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">vals.<span class="fn">round</span>(<span class="nm">4</span>)</span></div><div class="out">array([0.2679, 4.7321])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">U, S, Vt = np.linalg.<span class="fn">svd</span>(A)&nbsp;&nbsp;<span class="cm"># Singular Value Decomp.</span></span></div>
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">S.<span class="fn">round</span>(<span class="nm">4</span>)&nbsp;&nbsp;<span class="cm"># singular values</span></span></div>
-        <div class="out">array([5.8166, 0.1718])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.linalg.<span class="fn">norm</span>(np.<span class="fn">array</span>([<span class="nm">3</span>,<span class="nm">4</span>]))&nbsp;&nbsp;<span class="cm"># L2 norm</span></span></div><div class="out">5.0</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">v = np.<span class="fn">array</span>([<span class="nm">3</span>, <span class="nm">4</span>])</span></div>
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.linalg.<span class="fn">norm</span>(v)&nbsp;&nbsp;<span class="cm"># L2 norm √(3²+4²)</span></span></div>
-        <div class="out">5.0</div>
-      </div>
-      <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.linalg.<span class="fn">norm</span>(v, ord=<span class="nm">1</span>)&nbsp;&nbsp;<span class="cm"># L1 norm 3+4</span></span></div>
-        <div class="out">7.0</div>
-      </div>
-      <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">trace</span>(A)&nbsp;&nbsp;<span class="cm"># sum of diagonal</span></span></div>
-        <div class="out">5</div>
-      </div>
-
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">trace</span>(A)</span></div><div class="out">5</div></div>
     </div>
+  </div>
+  <button class="exp-toggle" onclick="toggleExp(this)"><i class="fa fa-chevron-right arrow"></i> Explain</button>
+  <div class="exp-panel">
+    <ul>
+      <li><span class="hl">@</span> operator (matmul) — standard matrix multiplication. Rules: <span class="hl2">(m, n) @ (n, p) → (m, p)</span>.</li>
+      <li>Matrix Inverse (<span class="hl">inv</span>) is numerically unstable for large or nearly-singular matrices. **Always prefer <span class="hl2">np.linalg.solve(A, b)</span>** when solving linear systems.</li>
+      <li><span class="hl">norm()</span> — by default calculates the Frobenius norm for matrices and Euclidean norm for vectors.</li>
+    </ul>
+    <div class="note-line"><i class="fa fa-bolt"></i>NumPy's linalg is backed by <strong>OpenBLAS</strong> or **MKL**, providing massive speed via parallel computing and vectorization.</div>
   </div>
 </section>
 
-<!-- ══════════════ RANDOM ══════════════ -->
+<!-- ══ RANDOM ══ -->
 <section id="random">
   <div class="sec-head"><div class="sec-icon io"><i class="fa fa-dice"></i></div><h2>Random Module</h2></div>
-  <div class="box tip"><i class="fa fa-lightbulb"></i><div>Always use the new <code>default_rng(seed)</code> API (NumPy 1.17+). It is faster, statistically better, and reproducible.</div></div>
+  <div class="box tip"><i class="fa fa-lightbulb"></i><div>Always use <code>np.random.default_rng(seed)</code> — faster, statistically superior, and fully reproducible.</div></div>
   <div class="repl">
-    <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">python — seed=42 for reproducibility</span></div>
+    <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">python — seed=42</span></div>
     <div class="repl-body">
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">rng = np.random.<span class="fn">default_rng</span>(seed=<span class="nm">42</span>)</span></div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">rng = np.random.<span class="fn">default_rng</span>(seed=<span class="nm">42</span>)</span></div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">rng.<span class="fn">random</span>(<span class="nm">5</span>).<span class="fn">round</span>(<span class="nm">4</span>)&nbsp;&nbsp;<span class="cm"># uniform floats [0, 1)</span></span></div>
-        <div class="out">array([0.7731, 0.0206, 0.6334, 0.7488, 0.4985])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">rng.<span class="fn">random</span>(<span class="nm">5</span>).<span class="fn">round</span>(<span class="nm">4</span>)&nbsp;&nbsp;<span class="cm"># uniform [0,1)</span></span></div><div class="out">array([0.7731, 0.0206, 0.6334, 0.7488, 0.4985])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">rng.<span class="fn">integers</span>(<span class="nm">0</span>, <span class="nm">10</span>, <span class="nm">6</span>)&nbsp;&nbsp;<span class="cm"># integers in [0, 10)</span></span></div>
-        <div class="out">array([8, 6, 5, 2, 4, 7])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">rng.<span class="fn">integers</span>(<span class="nm">0</span>, <span class="nm">10</span>, <span class="nm">6</span>)&nbsp;&nbsp;<span class="cm"># ints in [0,10)</span></span></div><div class="out">array([8, 6, 5, 2, 4, 7])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">rng.<span class="fn">normal</span>(<span class="nm">0</span>, <span class="nm">1</span>, <span class="nm">4</span>).<span class="fn">round</span>(<span class="nm">3</span>)&nbsp;&nbsp;<span class="cm"># μ=0, σ=1</span></span></div>
-        <div class="out">array([ 0.304,  0.787, -0.636,  1.025])</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">rng.<span class="fn">normal</span>(<span class="nm">0</span>, <span class="nm">1</span>, <span class="nm">4</span>).<span class="fn">round</span>(<span class="nm">3</span>)&nbsp;&nbsp;<span class="cm"># μ=0, σ=1</span></span></div><div class="out">array([ 0.304,  0.787, -0.636,  1.025])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">rng.<span class="fn">uniform</span>(-<span class="nm">5</span>, <span class="nm">5</span>, <span class="nm">4</span>).<span class="fn">round</span>(<span class="nm">2</span>)&nbsp;&nbsp;<span class="cm"># uniform in [-5, 5]</span></span></div>
-        <div class="out">array([-1.51,  3.61, -0.58,  4.17])</div>
-      </div>
-      <div class="stmt-gap"></div>
-
       <div class="stmt">
         <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">arr = np.<span class="fn">arange</span>(<span class="nm">5</span>)</span></div>
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">rng.<span class="fn">shuffle</span>(arr)&nbsp;&nbsp;<span class="cm"># in-place shuffle</span></span></div>
+        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">rng.<span class="fn">shuffle</span>(arr)&nbsp;&nbsp;<span class="cm"># in-place</span></span></div>
         <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">arr</span></div>
         <div class="out">array([2, 0, 4, 3, 1])</div>
       </div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">rng.<span class="fn">choice</span>([<span class="nm">10</span>,<span class="nm">20</span>,<span class="nm">30</span>,<span class="nm">40</span>], size=<span class="nm">3</span>, replace=<span class="kw">False</span>)</span></div>
-        <div class="out">array([30, 10, 40])</div>
-      </div>
-      <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">rng.<span class="fn">binomial</span>(<span class="nm">10</span>, <span class="nm">0.5</span>, <span class="nm">5</span>)&nbsp;&nbsp;<span class="cm"># 5 coin-flip counts</span></span></div>
-        <div class="out">array([6, 4, 5, 7, 5])</div>
-      </div>
-
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">rng.<span class="fn">choice</span>([<span class="nm">10</span>,<span class="nm">20</span>,<span class="nm">30</span>,<span class="nm">40</span>], size=<span class="nm">3</span>, replace=<span class="kw">False</span>)</span></div><div class="out">array([30, 10, 40])</div></div>
     </div>
   </div>
-
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr><th>Distribution</th><th>Method</th><th>Description</th></tr></thead>
-      <tbody>
-        <tr><td>Uniform [0,1)</td><td><code>rng.random(size)</code></td><td>Float in [0,1)</td></tr>
-        <tr><td>Uniform range</td><td><code>rng.uniform(low, high, size)</code></td><td>Float in [low, high]</td></tr>
-        <tr><td>Normal</td><td><code>rng.normal(loc, scale, size)</code></td><td>Gaussian μ, σ</td></tr>
-        <tr><td>Integers</td><td><code>rng.integers(low, high, size)</code></td><td>Integers in [low, high)</td></tr>
-        <tr><td>Binomial</td><td><code>rng.binomial(n, p, size)</code></td><td>Coin-flip counts</td></tr>
-        <tr><td>Poisson</td><td><code>rng.poisson(lam, size)</code></td><td>Event counts</td></tr>
-        <tr><td>Exponential</td><td><code>rng.exponential(scale, size)</code></td><td>Time between events</td></tr>
-        <tr><td>Beta</td><td><code>rng.beta(a, b, size)</code></td><td>Probabilities [0,1]</td></tr>
-        <tr><td>Chi-square</td><td><code>rng.chisquare(df, size)</code></td><td>Hypothesis testing</td></tr>
-      </tbody>
-    </table>
+  <button class="exp-toggle" onclick="toggleExp(this)"><i class="fa fa-chevron-right arrow"></i> Explain</button>
+  <div class="exp-panel">
+    Using a <strong>Generator (rng)</strong> is the modern way to do randomness.
+    <ul>
+      <li><strong>Seeding:</strong> Provides identical results every time you run the script. Critical for scientific research and debugging.</li>
+      <li><span class="hl">choice()</span> — allows weight-based sampling if you provide a <span class="hl2">p=</span> probability array.</li>
+      <li><span class="hl">shuffle()</span> — perfect for randomizing training data in Machine Learning.</li>
+    </ul>
+    <div class="note-line"><i class="fa fa-triangle-exclamation"></i>Avoid the old <span class="hl2">np.random.seed()</span> (global seed); it's not thread-safe and can cause subtle bugs.</div>
   </div>
 </section>
 
-<!-- ══════════════ FILE I/O ══════════════ -->
+<!-- ══ FILE I/O ══ -->
 <section id="io">
   <div class="sec-head"><div class="sec-icon ib"><i class="fa fa-file-import"></i></div><h2>File I/O</h2></div>
   <div class="repl">
     <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">python</span></div>
     <div class="repl-body">
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">arr = np.<span class="fn">array</span>([[<span class="nm">1</span>,<span class="nm">2</span>],[<span class="nm">3</span>,<span class="nm">4</span>]])</span></div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">arr = np.<span class="fn">array</span>([[<span class="nm">1</span>,<span class="nm">2</span>],[<span class="nm">3</span>,<span class="nm">4</span>]])</span></div></div>
       <div class="stmt-gap"></div>
-
       <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">save</span>(<span class="st">'data.npy'</span>, arr)&nbsp;&nbsp;<span class="cm"># binary single-array</span></span></div>
+        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">save</span>(<span class="st">'data.npy'</span>, arr)&nbsp;&nbsp;<span class="cm"># binary, single array</span></span></div>
         <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">load</span>(<span class="st">'data.npy'</span>)</span></div>
         <div class="out">array([[1, 2],
        [3, 4]])</div>
       </div>
       <div class="stmt-gap"></div>
-
       <div class="stmt">
         <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">savez_compressed</span>(<span class="st">'data.npz'</span>, x=arr, y=arr*<span class="nm">2</span>)</span></div>
         <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">f = np.<span class="fn">load</span>(<span class="st">'data.npz'</span>)</span></div>
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">f[<span class="st">'x'</span>]&nbsp;&nbsp;<span class="cm"># access named array</span></span></div>
+        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">f[<span class="st">'x'</span>]</span></div>
         <div class="out">array([[1, 2],
        [3, 4]])</div>
       </div>
       <div class="stmt-gap"></div>
-
       <div class="stmt">
         <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">savetxt</span>(<span class="st">'out.csv'</span>, arr, delimiter=<span class="st">','</span>, fmt=<span class="st">'%d'</span>)</span></div>
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">loadtxt</span>(<span class="st">'out.csv'</span>, delimiter=<span class="st">','</span>)&nbsp;&nbsp;<span class="cm"># returns float64</span></span></div>
+        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">loadtxt</span>(<span class="st">'out.csv'</span>, delimiter=<span class="st">','</span>)</span></div>
         <div class="out">array([[1., 2.],
        [3., 4.]])</div>
       </div>
-
     </div>
+  </div>
+  <button class="exp-toggle" onclick="toggleExp(this)"><i class="fa fa-chevron-right arrow"></i> Explain</button>
+  <div class="exp-panel">
+    <ul>
+      <li><strong>.npy files:</strong> Binary, zero-overhead, extremely fast. Use these for internal data.</li>
+      <li><strong>.csv files:</strong> Slow and huge. Only use if people need to read the data in Excel.</li>
+      <li><span class="hl">fmt='%d'</span> — controls how numbers look in text files (e.g., <span class="hl2">%d</span> for integer, <span class="hl2">%.2f</span> for 2-decimal floats).</li>
+    </ul>
   </div>
 </section>
 
-<!-- ══════════════ EINSUM ══════════════ -->
+<!-- ══ EINSUM ══ -->
 <section id="einsum">
   <div class="sec-head"><div class="sec-icon ip"><i class="fa fa-sigma"></i></div><h2>einsum — Einstein Summation</h2></div>
-  <p><code>np.einsum</code> uses Einstein notation to express tensor operations concisely and efficiently. Repeated indices are summed over.</p>
+  <p><code>np.einsum</code> expresses any tensor operation using index notation. Repeated indices are summed over (contracted).</p>
   <div class="repl">
     <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">python</span></div>
     <div class="repl-body">
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a = np.<span class="fn">array</span>([<span class="nm">1</span>,<span class="nm">2</span>,<span class="nm">3</span>])&nbsp;;&nbsp;b = np.<span class="fn">array</span>([<span class="nm">4</span>,<span class="nm">5</span>,<span class="nm">6</span>])</span></div>
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">A = np.<span class="fn">arange</span>(<span class="nm">9</span>).<span class="fn">reshape</span>(<span class="nm">3</span>,<span class="nm">3</span>)</span></div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a = np.<span class="fn">array</span>([<span class="nm">1</span>,<span class="nm">2</span>,<span class="nm">3</span>])&nbsp;;&nbsp;b = np.<span class="fn">array</span>([<span class="nm">4</span>,<span class="nm">5</span>,<span class="nm">6</span>])</span></div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">einsum</span>(<span class="st">'i,i->'</span>, a, b)&nbsp;&nbsp;<span class="cm"># dot product: 1×4+2×5+3×6</span></span></div>
-        <div class="out">32</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">einsum</span>(<span class="st">'i,i->'</span>, a, b)&nbsp;&nbsp;<span class="cm"># dot product</span></span></div><div class="out">32</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">einsum</span>(<span class="st">'i,j->ij'</span>, a, b)&nbsp;&nbsp;<span class="cm"># outer product</span></span></div>
-        <div class="out">array([[ 4,  5,  6],
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">einsum</span>(<span class="st">'i,j->ij'</span>, a, b)&nbsp;&nbsp;<span class="cm"># outer product</span></span></div><div class="out">array([[ 4,  5,  6],
        [ 8, 10, 12],
-       [12, 15, 18]])</div>
-      </div>
+       [12, 15, 18]])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">einsum</span>(<span class="st">'ij,jk->ik'</span>, A, A)&nbsp;&nbsp;<span class="cm"># matrix multiply</span></span></div>
-        <div class="out">array([[ 15,  18,  21],
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">A = np.<span class="fn">arange</span>(<span class="nm">9</span>).<span class="fn">reshape</span>(<span class="nm">3</span>,<span class="nm">3</span>)</span></div></div>
+      <div class="stmt-gap"></div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">einsum</span>(<span class="st">'ij,jk->ik'</span>, A, A)&nbsp;&nbsp;<span class="cm"># matrix multiply</span></span></div><div class="out">array([[ 15,  18,  21],
        [ 42,  54,  66],
-       [ 69,  90, 111]])</div>
-      </div>
+       [ 69,  90, 111]])</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">einsum</span>(<span class="st">'ii->'</span>, A)&nbsp;&nbsp;<span class="cm"># trace: sum diagonal</span></span></div>
-        <div class="out">12</div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">einsum</span>(<span class="st">'ii->'</span>, A)&nbsp;&nbsp;<span class="cm"># trace</span></span></div><div class="out">12</div></div>
       <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">einsum</span>(<span class="st">'ij->ji'</span>, A)&nbsp;&nbsp;<span class="cm"># transpose</span></span></div>
-        <div class="out">array([[0, 3, 6],
-       [1, 4, 7],
-       [2, 5, 8]])</div>
-      </div>
-      <div class="stmt-gap"></div>
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">einsum</span>(<span class="st">'ij->i'</span>, A)&nbsp;&nbsp;<span class="cm"># row sums</span></span></div>
-        <div class="out">array([ 3, 12, 21])</div>
-      </div>
-
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">einsum</span>(<span class="st">'ij->i'</span>, A)&nbsp;&nbsp;<span class="cm"># row sums</span></span></div><div class="out">array([ 3, 12, 21])</div></div>
     </div>
+  </div>
+  <button class="exp-toggle" onclick="toggleExp(this)"><i class="fa fa-chevron-right arrow"></i> Explain</button>
+  <div class="exp-panel">
+    <strong>einsum</strong> is the "God mode" of NumPy.
+    <ul>
+      <li>It uses strings to describe how dimensions should be multiplied and summed.</li>
+      <li><span class="hl">'ij,jk->ik'</span>: "Take a matrix with rows i/cols j, and another with rows j/cols k. Multiply and sum the shared dimension j. Give me a matrix i by k." (Matrix Multiplication).</li>
+      <li>It's often <strong>faster and more memory efficient</strong> than writing multiple operations because it happens in a single optimized pass.</li>
+    </ul>
   </div>
 </section>
 
-<!-- ══════════════ PERFORMANCE ══════════════ -->
+<!-- ══ PERFORMANCE ══ -->
 <section id="perf">
   <div class="sec-head"><div class="sec-icon ig"><i class="fa fa-bolt"></i></div><h2>Performance Tips</h2></div>
-
   <div class="repl">
-    <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">python — vectorise instead of loop</span></div>
+    <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">python — vectorise vs loop</span></div>
     <div class="repl-body">
-
-      <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line"><span class="kw">import</span> time</span></div>
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">a = np.<span class="fn">arange</span>(<span class="nm">1_000_000</span>, dtype=np.float64)</span></div>
-      </div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line"><span class="kw">import</span> time&nbsp;;&nbsp;a = np.<span class="fn">arange</span>(<span class="nm">1_000_000</span>, dtype=np.float64)</span></div></div>
       <div class="stmt-gap"></div>
-
       <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line"><span class="cm"># slow: Python loop</span></span></div>
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">t = time.<span class="fn">time</span>()</span></div>
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">s = <span class="fn">sum</span>(x**<span class="nm">2</span> <span class="kw">for</span> x <span class="kw">in</span> a)</span></div>
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line"><span class="fn">round</span>(time.<span class="fn">time</span>() - t, <span class="nm">3</span>)</span></div>
+        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">t = time.<span class="fn">time</span>()&nbsp;;&nbsp;s = <span class="fn">sum</span>(x**<span class="nm">2</span> <span class="kw">for</span> x <span class="kw">in</span> a)</span></div>
+        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line"><span class="fn">round</span>(time.<span class="fn">time</span>() - t, <span class="nm">3</span>)&nbsp;&nbsp;<span class="cm"># Python loop</span></span></div>
         <div class="out">0.318</div>
       </div>
       <div class="stmt-gap"></div>
-
       <div class="stmt">
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line"><span class="cm"># fast: vectorised NumPy</span></span></div>
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">t = time.<span class="fn">time</span>()</span></div>
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">s = (a**<span class="nm">2</span>).<span class="fn">sum</span>()</span></div>
-        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line"><span class="fn">round</span>(time.<span class="fn">time</span>() - t, <span class="nm">3</span>)</span></div>
-        <div class="out">0.003  # ~100× faster</div>
+        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">t = time.<span class="fn">time</span>()&nbsp;;&nbsp;s = (a**<span class="nm">2</span>).<span class="fn">sum</span>()</span></div>
+        <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line"><span class="fn">round</span>(time.<span class="fn">time</span>() - t, <span class="nm">3</span>)&nbsp;&nbsp;<span class="cm"># NumPy vectorised</span></span></div>
+        <div class="out">0.003  # ≈100× faster</div>
       </div>
-
     </div>
+  </div>
+  <button class="exp-toggle" onclick="toggleExp(this)"><i class="fa fa-chevron-right arrow"></i> Explain</button>
+  <div class="exp-panel">
+    The 100× speedup comes from two things: <strong>no Python overhead per element</strong> and <strong>SIMD hardware instructions</strong>.
+    <ul>
+      <li>A Python loop calls the interpreter for every iteration — dispatching bytecode, handling Python objects, checking types. For 1 million elements that's 1 million interpreter calls.</li>
+      <li>NumPy's <span class="hl">a**2</span> compiles down to a single C loop that processes multiple elements per CPU clock cycle using SIMD (e.g. AVX2 handles 4 doubles at once).</li>
+    </ul>
+    <div class="note-line"><i class="fa fa-circle-info"></i>The rule: if you find yourself writing <span class="hl2">for x in array</span> or <span class="hl2">for i in range(len(array))</span>, there is almost always a vectorised NumPy equivalent that is orders of magnitude faster.</div>
   </div>
 
   <div class="cards">
-    <div class="card"><div class="card-title"><i class="fa fa-ban"></i> &nbsp;Avoid Python Loops</div><p>Replace <code>for</code> loops with NumPy ufuncs. The C backend eliminates Python overhead entirely.</p></div>
+    <div class="card"><div class="card-title"><i class="fa fa-ban"></i> &nbsp;Avoid Python Loops</div><p>Replace <code>for</code> loops with ufuncs. The C backend eliminates Python overhead entirely.</p></div>
     <div class="card"><div class="card-title"><i class="fa fa-tag"></i> &nbsp;Use Correct dtype</div><p><code>float32</code> uses half the memory of <code>float64</code> and is 2× faster on SIMD / GPU hardware.</p></div>
-    <div class="card"><div class="card-title"><i class="fa fa-memory"></i> &nbsp;Views Not Copies</div><p>Slices return views (zero memory cost). Call <code>.copy()</code> only when independence is truly required.</p></div>
+    <div class="card"><div class="card-title"><i class="fa fa-memory"></i> &nbsp;Views Not Copies</div><p>Slices return views (zero memory cost). Call <code>.copy()</code> only when independence is required.</p></div>
     <div class="card"><div class="card-title"><i class="fa fa-recycle"></i> &nbsp;Pre-allocate Arrays</div><p><code>np.empty(n)</code> + index fill is far faster than building arrays by repeated appending.</p></div>
-    <div class="card"><div class="card-title"><i class="fa fa-layer-group"></i> &nbsp;Keep C-Contiguous</div><p>Row-major (default) arrays are fastest for row operations. Check with <code>a.flags['C_CONTIGUOUS']</code>.</p></div>
-    <div class="card"><div class="card-title"><i class="fa fa-sigma"></i> &nbsp;Use einsum</div><p>For complex tensor contractions, <code>einsum</code> can outperform chained dot/sum calls with a single optimised pass.</p></div>
+    <div class="card"><div class="card-title"><i class="fa fa-layer-group"></i> &nbsp;Keep C-Contiguous</div><p>Row-major (default) arrays are fastest for row ops. Check with <code>a.flags['C_CONTIGUOUS']</code>.</p></div>
+    <div class="card"><div class="card-title"><i class="fa fa-sigma"></i> &nbsp;Use einsum</div><p>For complex tensor contractions, <code>einsum(optimize=True)</code> finds the most efficient contraction path.</p></div>
   </div>
-
-  <div class="box warn"><i class="fa fa-triangle-exclamation"></i><div>NumPy uses <strong>0-based indexing</strong> and <strong>row-major (C-order)</strong> memory layout by default. MATLAB uses 1-based, column-major — be careful when porting.</div></div>
+  <div class="box warn"><i class="fa fa-triangle-exclamation"></i><div>NumPy uses <strong>0-based indexing</strong> and <strong>row-major (C-order)</strong> memory by default. MATLAB uses 1-based, column-major — always check axis conventions when porting code.</div></div>
 </section>
 
 </main>
@@ -1549,28 +1134,87 @@ done</div>
 <a href="#intro" id="top"><i class="fa fa-arrow-up"></i></a>
 
 <script>
+  /* ── back to top ── */
   window.addEventListener('scroll', () => {
     document.getElementById('top').classList.toggle('show', window.scrollY > 400);
   });
 
-  // Active sidebar
+  /* ── active sidebar ── */
   const secs = document.querySelectorAll('section, .hero');
   const links = document.querySelectorAll('aside a');
-  secs.forEach(s => new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        links.forEach(a => a.classList.remove('active'));
-        const l = document.querySelector(`aside a[href="#${e.target.id}"]`);
-        if (l) l.classList.add('active');
-      }
-    });
-  }, { rootMargin: '-20% 0px -70% 0px' }).observe(s));
 
-  // Search
+  const observerOptions = {
+    rootMargin: '-20% 0px -70% 0px',
+    threshold: 0
+  };
+
+  secs.forEach(s => {
+    new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          links.forEach(a => a.classList.remove('active'));
+          const l = document.querySelector(`aside a[href="#${e.target.id}"]`);
+          if (l) {
+            l.classList.add('active');
+            l.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
+        }
+      });
+    }, observerOptions).observe(s);
+  });
+
+  // Also handle manual clicks to set active state immediately
+  links.forEach(link => {
+    link.addEventListener('click', () => {
+      links.forEach(a => a.classList.remove('active'));
+      link.classList.add('active');
+    });
+  });
+
+  /* ── per-block toggle ── */
+  function toggleExp(btn) {
+    const panel = btn.nextElementSibling;
+    const open = panel.classList.toggle('open');
+    btn.classList.toggle('open', open);
+  }
+
+  /* ── global toggle ── */
+  let allOpen = false;
+  function toggleAll() {
+    allOpen = !allOpen;
+    document.querySelectorAll('.exp-panel').forEach(p => p.classList.toggle('open', allOpen));
+    document.querySelectorAll('.exp-toggle').forEach(b => b.classList.toggle('open', allOpen));
+    const gt = document.getElementById('globalToggle');
+    gt.classList.toggle('all-open', allOpen);
+    document.getElementById('globalLabel').textContent = allOpen ? 'Hide all explanations' : 'Show all explanations';
+  }
+
+  /* ── search ── */
   document.getElementById('q').addEventListener('input', function () {
     const q = this.value.trim().toLowerCase();
-    document.querySelectorAll('section, .hero').forEach(s => {
-      s.style.display = !q || s.textContent.toLowerCase().includes(q) ? '' : 'none';
+    
+    // Filter sections
+    secs.forEach(s => {
+      const isMatch = !q || s.textContent.toLowerCase().includes(q);
+      s.style.display = isMatch ? '' : 'none';
+      
+      // Also filter sidebar links
+      const l = document.querySelector(`aside a[href="#${s.id}"]`);
+      if (l) l.style.display = isMatch ? '' : 'none';
+    });
+
+    // Handle nav labels (hide if all following links are hidden)
+    document.querySelectorAll('aside .nav-label').forEach(label => {
+      let next = label.nextElementSibling;
+      let hasVisible = false;
+      while (next && next.classList.contains('nav-label') === false) {
+        if (next.tagName === 'A' && next.style.display !== 'none') {
+          hasVisible = true;
+          break;
+        }
+        next = next.nextElementSibling;
+      }
+      label.style.display = hasVisible || !q ? '' : 'none';
     });
   });
 </script>
